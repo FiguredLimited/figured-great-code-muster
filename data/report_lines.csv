@@ -1,0 +1,421 @@
+farm,month,category,budget,actual
+"Riverbend Dairy Ltd",2025-06-01,"Milk Income",30000,28490
+"Riverbend Dairy Ltd",2025-07-01,"Milk Income",22000,22883
+"Riverbend Dairy Ltd",2025-08-01,"Milk Income",38000,39106
+"Riverbend Dairy Ltd",2025-09-01,"Milk Income",72000,68285
+"Riverbend Dairy Ltd",2025-10-01,"Milk Income",95000,92065
+"Riverbend Dairy Ltd",2025-11-01,"Milk Income",105000,109306
+"Riverbend Dairy Ltd",2025-12-01,"Milk Income",98000,94272
+"Riverbend Dairy Ltd",2026-01-01,"Milk Income",88000,87059
+"Riverbend Dairy Ltd",2026-02-01,"Milk Income",76000,66880
+"Riverbend Dairy Ltd",2026-03-01,"Milk Income",68000,59840
+"Riverbend Dairy Ltd",2026-04-01,"Milk Income",52000,45760
+"Riverbend Dairy Ltd",2026-05-01,"Milk Income",40000,42253
+"Riverbend Dairy Ltd",2025-06-01,"Livestock Sales",2000,1905
+"Riverbend Dairy Ltd",2025-07-01,"Livestock Sales",3000,2869
+"Riverbend Dairy Ltd",2025-08-01,"Livestock Sales",9000,8720
+"Riverbend Dairy Ltd",2025-09-01,"Livestock Sales",7000,6951
+"Riverbend Dairy Ltd",2025-10-01,"Livestock Sales",2000,2101
+"Riverbend Dairy Ltd",2025-11-01,"Livestock Sales",2000,2048
+"Riverbend Dairy Ltd",2025-12-01,"Livestock Sales",2000,2070
+"Riverbend Dairy Ltd",2026-01-01,"Livestock Sales",2000,1935
+"Riverbend Dairy Ltd",2026-02-01,"Livestock Sales",8000,8376
+"Riverbend Dairy Ltd",2026-03-01,"Livestock Sales",14000,13889
+"Riverbend Dairy Ltd",2026-04-01,"Livestock Sales",16000,15089
+"Riverbend Dairy Ltd",2026-05-01,"Livestock Sales",10000,9530
+"Riverbend Dairy Ltd",2025-06-01,Feed,14000,14375
+"Riverbend Dairy Ltd",2025-07-01,Feed,15000,14154
+"Riverbend Dairy Ltd",2025-08-01,Feed,12000,11603
+"Riverbend Dairy Ltd",2025-09-01,Feed,8000,7845
+"Riverbend Dairy Ltd",2025-10-01,Feed,6000,6175
+"Riverbend Dairy Ltd",2025-11-01,Feed,5000,5193
+"Riverbend Dairy Ltd",2025-12-01,Feed,7000,6807
+"Riverbend Dairy Ltd",2026-01-01,Feed,10000,9798
+"Riverbend Dairy Ltd",2026-02-01,Feed,12000,19800
+"Riverbend Dairy Ltd",2026-03-01,Feed,12000,12684
+"Riverbend Dairy Ltd",2026-04-01,Feed,10000,10035
+"Riverbend Dairy Ltd",2026-05-01,Feed,12000,11802
+"Riverbend Dairy Ltd",2025-06-01,Fertiliser,2000,2042
+"Riverbend Dairy Ltd",2025-07-01,Fertiliser,2000,1931
+"Riverbend Dairy Ltd",2025-08-01,Fertiliser,8000,8435
+"Riverbend Dairy Ltd",2025-09-01,Fertiliser,12000,12535
+"Riverbend Dairy Ltd",2025-10-01,Fertiliser,10000,9998
+"Riverbend Dairy Ltd",2025-11-01,Fertiliser,4000,3812
+"Riverbend Dairy Ltd",2025-12-01,Fertiliser,2000,1959
+"Riverbend Dairy Ltd",2026-01-01,Fertiliser,2000,1994
+"Riverbend Dairy Ltd",2026-02-01,Fertiliser,4000,4229
+"Riverbend Dairy Ltd",2026-03-01,Fertiliser,10000,10201
+"Riverbend Dairy Ltd",2026-04-01,Fertiliser,8000,8243
+"Riverbend Dairy Ltd",2026-05-01,Fertiliser,3000,2853
+"Riverbend Dairy Ltd",2025-06-01,"Vet & Animal Health",2000,1948
+"Riverbend Dairy Ltd",2025-07-01,"Vet & Animal Health",3500,3359
+"Riverbend Dairy Ltd",2025-08-01,"Vet & Animal Health",5000,5002
+"Riverbend Dairy Ltd",2025-09-01,"Vet & Animal Health",5000,4748
+"Riverbend Dairy Ltd",2025-10-01,"Vet & Animal Health",4500,4663
+"Riverbend Dairy Ltd",2025-11-01,"Vet & Animal Health",4000,3771
+"Riverbend Dairy Ltd",2025-12-01,"Vet & Animal Health",2500,2618
+"Riverbend Dairy Ltd",2026-01-01,"Vet & Animal Health",2000,1891
+"Riverbend Dairy Ltd",2026-02-01,"Vet & Animal Health",2000,2118
+"Riverbend Dairy Ltd",2026-03-01,"Vet & Animal Health",3000,3004
+"Riverbend Dairy Ltd",2026-04-01,"Vet & Animal Health",2500,2460
+"Riverbend Dairy Ltd",2026-05-01,"Vet & Animal Health",2000,2089
+"Riverbend Dairy Ltd",2025-06-01,Wages,11000,11491
+"Riverbend Dairy Ltd",2025-07-01,Wages,11000,11071
+"Riverbend Dairy Ltd",2025-08-01,Wages,11000,5731
+"Riverbend Dairy Ltd",2025-09-01,Wages,11000,16483
+"Riverbend Dairy Ltd",2025-10-01,Wages,11000,10911
+"Riverbend Dairy Ltd",2025-11-01,Wages,11000,11106
+"Riverbend Dairy Ltd",2025-12-01,Wages,11000,10723
+"Riverbend Dairy Ltd",2026-01-01,Wages,11000,10458
+"Riverbend Dairy Ltd",2026-02-01,Wages,11000,10978
+"Riverbend Dairy Ltd",2026-03-01,Wages,11000,11548
+"Riverbend Dairy Ltd",2026-04-01,Wages,11000,10834
+"Riverbend Dairy Ltd",2026-05-01,Wages,11000,11345
+"Riverbend Dairy Ltd",2025-06-01,Fuel,1600,1684
+"Riverbend Dairy Ltd",2025-07-01,Fuel,1600,1591
+"Riverbend Dairy Ltd",2025-08-01,Fuel,1700,1611
+"Riverbend Dairy Ltd",2025-09-01,Fuel,1800,1779
+"Riverbend Dairy Ltd",2025-10-01,Fuel,1900,1936
+"Riverbend Dairy Ltd",2025-11-01,Fuel,1900,1894
+"Riverbend Dairy Ltd",2025-12-01,Fuel,1900,1848
+"Riverbend Dairy Ltd",2026-01-01,Fuel,2000,1928
+"Riverbend Dairy Ltd",2026-02-01,Fuel,1900,1791
+"Riverbend Dairy Ltd",2026-03-01,Fuel,1800,1877
+"Riverbend Dairy Ltd",2026-04-01,Fuel,1700,1626
+"Riverbend Dairy Ltd",2026-05-01,Fuel,1600,1573
+"Riverbend Dairy Ltd",2025-06-01,Repairs,2500,2464
+"Riverbend Dairy Ltd",2025-07-01,Repairs,3000,2854
+"Riverbend Dairy Ltd",2025-08-01,Repairs,3500,3495
+"Riverbend Dairy Ltd",2025-09-01,Repairs,4000,3924
+"Riverbend Dairy Ltd",2025-10-01,Repairs,3500,3378
+"Riverbend Dairy Ltd",2025-11-01,Repairs,3000,3008
+"Riverbend Dairy Ltd",2025-12-01,Repairs,2500,2480
+"Riverbend Dairy Ltd",2026-01-01,Repairs,2500,2491
+"Riverbend Dairy Ltd",2026-02-01,Repairs,2500,2356
+"Riverbend Dairy Ltd",2026-03-01,Repairs,3000,3107
+"Riverbend Dairy Ltd",2026-04-01,Repairs,3000,3004
+"Riverbend Dairy Ltd",2026-05-01,Repairs,2500,2410
+"Riverbend Dairy Ltd",2025-06-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2025-07-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2025-08-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2025-09-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2025-10-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2025-11-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2025-12-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2026-01-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2026-02-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2026-03-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2026-04-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2026-05-01,Insurance,1400,1400
+"Riverbend Dairy Ltd",2025-06-01,Rates,0,0
+"Riverbend Dairy Ltd",2025-07-01,Rates,0,0
+"Riverbend Dairy Ltd",2025-08-01,Rates,4200,4200
+"Riverbend Dairy Ltd",2025-09-01,Rates,0,0
+"Riverbend Dairy Ltd",2025-10-01,Rates,0,0
+"Riverbend Dairy Ltd",2025-11-01,Rates,4200,4200
+"Riverbend Dairy Ltd",2025-12-01,Rates,0,0
+"Riverbend Dairy Ltd",2026-01-01,Rates,0,0
+"Riverbend Dairy Ltd",2026-02-01,Rates,4200,4200
+"Riverbend Dairy Ltd",2026-03-01,Rates,0,0
+"Riverbend Dairy Ltd",2026-04-01,Rates,0,0
+"Riverbend Dairy Ltd",2026-05-01,Rates,4200,4200
+"Riverbend Dairy Ltd",2025-06-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2025-07-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2025-08-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2025-09-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2025-10-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2025-11-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2025-12-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2026-01-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2026-02-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2026-03-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2026-04-01,Interest,7500,7500
+"Riverbend Dairy Ltd",2026-05-01,Interest,7500,7500
+"Kahikatea Downs",2025-06-01,"Lamb Sales",0,0
+"Kahikatea Downs",2025-07-01,"Lamb Sales",0,0
+"Kahikatea Downs",2025-08-01,"Lamb Sales",0,0
+"Kahikatea Downs",2025-09-01,"Lamb Sales",0,0
+"Kahikatea Downs",2025-10-01,"Lamb Sales",0,0
+"Kahikatea Downs",2025-11-01,"Lamb Sales",2000,2013
+"Kahikatea Downs",2025-12-01,"Lamb Sales",27000,29700
+"Kahikatea Downs",2026-01-01,"Lamb Sales",45000,49500
+"Kahikatea Downs",2026-02-01,"Lamb Sales",25000,27500
+"Kahikatea Downs",2026-03-01,"Lamb Sales",33000,36300
+"Kahikatea Downs",2026-04-01,"Lamb Sales",6000,6220
+"Kahikatea Downs",2026-05-01,"Lamb Sales",0,0
+"Kahikatea Downs",2025-06-01,"Cattle Sales",0,0
+"Kahikatea Downs",2025-07-01,"Cattle Sales",0,0
+"Kahikatea Downs",2025-08-01,"Cattle Sales",0,0
+"Kahikatea Downs",2025-09-01,"Cattle Sales",6000,6317
+"Kahikatea Downs",2025-10-01,"Cattle Sales",8000,7897
+"Kahikatea Downs",2025-11-01,"Cattle Sales",0,0
+"Kahikatea Downs",2025-12-01,"Cattle Sales",0,0
+"Kahikatea Downs",2026-01-01,"Cattle Sales",0,0
+"Kahikatea Downs",2026-02-01,"Cattle Sales",0,0
+"Kahikatea Downs",2026-03-01,"Cattle Sales",45000,43828
+"Kahikatea Downs",2026-04-01,"Cattle Sales",0,0
+"Kahikatea Downs",2026-05-01,"Cattle Sales",12000,12344
+"Kahikatea Downs",2025-06-01,"Wool Income",4000,4015
+"Kahikatea Downs",2025-07-01,"Wool Income",0,0
+"Kahikatea Downs",2025-08-01,"Wool Income",0,0
+"Kahikatea Downs",2025-09-01,"Wool Income",0,0
+"Kahikatea Downs",2025-10-01,"Wool Income",0,0
+"Kahikatea Downs",2025-11-01,"Wool Income",0,0
+"Kahikatea Downs",2025-12-01,"Wool Income",8000,8082
+"Kahikatea Downs",2026-01-01,"Wool Income",0,0
+"Kahikatea Downs",2026-02-01,"Wool Income",0,0
+"Kahikatea Downs",2026-03-01,"Wool Income",0,0
+"Kahikatea Downs",2026-04-01,"Wool Income",0,0
+"Kahikatea Downs",2026-05-01,"Wool Income",0,0
+"Kahikatea Downs",2025-06-01,Feed,3000,3149
+"Kahikatea Downs",2025-07-01,Feed,3000,3117
+"Kahikatea Downs",2025-08-01,Feed,2000,2083
+"Kahikatea Downs",2025-09-01,Feed,1000,959
+"Kahikatea Downs",2025-10-01,Feed,1000,1015
+"Kahikatea Downs",2025-11-01,Feed,1000,1051
+"Kahikatea Downs",2025-12-01,Feed,1000,1043
+"Kahikatea Downs",2026-01-01,Feed,2000,2048
+"Kahikatea Downs",2026-02-01,Feed,3000,3166
+"Kahikatea Downs",2026-03-01,Feed,2000,1962
+"Kahikatea Downs",2026-04-01,Feed,2000,1916
+"Kahikatea Downs",2026-05-01,Feed,3000,2888
+"Kahikatea Downs",2025-06-01,Fertiliser,0,0
+"Kahikatea Downs",2025-07-01,Fertiliser,0,0
+"Kahikatea Downs",2025-08-01,Fertiliser,6000,6038
+"Kahikatea Downs",2025-09-01,Fertiliser,9000,2250
+"Kahikatea Downs",2025-10-01,Fertiliser,7000,13750
+"Kahikatea Downs",2025-11-01,Fertiliser,0,0
+"Kahikatea Downs",2025-12-01,Fertiliser,0,0
+"Kahikatea Downs",2026-01-01,Fertiliser,0,0
+"Kahikatea Downs",2026-02-01,Fertiliser,0,0
+"Kahikatea Downs",2026-03-01,Fertiliser,6000,6037
+"Kahikatea Downs",2026-04-01,Fertiliser,5000,4715
+"Kahikatea Downs",2026-05-01,Fertiliser,0,0
+"Kahikatea Downs",2025-06-01,"Vet & Animal Health",800,832
+"Kahikatea Downs",2025-07-01,"Vet & Animal Health",2200,2132
+"Kahikatea Downs",2025-08-01,"Vet & Animal Health",2600,2549
+"Kahikatea Downs",2025-09-01,"Vet & Animal Health",1400,1347
+"Kahikatea Downs",2025-10-01,"Vet & Animal Health",1800,1745
+"Kahikatea Downs",2025-11-01,"Vet & Animal Health",900,928
+"Kahikatea Downs",2025-12-01,"Vet & Animal Health",700,674
+"Kahikatea Downs",2026-01-01,"Vet & Animal Health",700,681
+"Kahikatea Downs",2026-02-01,"Vet & Animal Health",900,852
+"Kahikatea Downs",2026-03-01,"Vet & Animal Health",1200,1159
+"Kahikatea Downs",2026-04-01,"Vet & Animal Health",900,925
+"Kahikatea Downs",2026-05-01,"Vet & Animal Health",800,845
+"Kahikatea Downs",2025-06-01,Wages,6000,5715
+"Kahikatea Downs",2025-07-01,Wages,6000,5751
+"Kahikatea Downs",2025-08-01,Wages,6000,5967
+"Kahikatea Downs",2025-09-01,Wages,6000,5738
+"Kahikatea Downs",2025-10-01,Wages,6000,5969
+"Kahikatea Downs",2025-11-01,Wages,6000,5881
+"Kahikatea Downs",2025-12-01,Wages,6000,5729
+"Kahikatea Downs",2026-01-01,Wages,6000,6063
+"Kahikatea Downs",2026-02-01,Wages,6000,6119
+"Kahikatea Downs",2026-03-01,Wages,6000,6270
+"Kahikatea Downs",2026-04-01,Wages,6000,6306
+"Kahikatea Downs",2026-05-01,Wages,6000,6016
+"Kahikatea Downs",2025-06-01,Fuel,900,876
+"Kahikatea Downs",2025-07-01,Fuel,900,948
+"Kahikatea Downs",2025-08-01,Fuel,1000,1008
+"Kahikatea Downs",2025-09-01,Fuel,1100,1044
+"Kahikatea Downs",2025-10-01,Fuel,1200,1153
+"Kahikatea Downs",2025-11-01,Fuel,1200,1265
+"Kahikatea Downs",2025-12-01,Fuel,1300,1310
+"Kahikatea Downs",2026-01-01,Fuel,1300,1333
+"Kahikatea Downs",2026-02-01,Fuel,1200,1221
+"Kahikatea Downs",2026-03-01,Fuel,1100,1134
+"Kahikatea Downs",2026-04-01,Fuel,1000,1003
+"Kahikatea Downs",2026-05-01,Fuel,900,915
+"Kahikatea Downs",2025-06-01,Repairs,1500,1559
+"Kahikatea Downs",2025-07-01,Repairs,1800,1783
+"Kahikatea Downs",2025-08-01,Repairs,2000,1912
+"Kahikatea Downs",2025-09-01,Repairs,2200,2190
+"Kahikatea Downs",2025-10-01,Repairs,2000,1927
+"Kahikatea Downs",2025-11-01,Repairs,1800,1838
+"Kahikatea Downs",2025-12-01,Repairs,1500,1502
+"Kahikatea Downs",2026-01-01,Repairs,1500,1475
+"Kahikatea Downs",2026-02-01,Repairs,1500,1501
+"Kahikatea Downs",2026-03-01,Repairs,1800,1895
+"Kahikatea Downs",2026-04-01,Repairs,1800,1819
+"Kahikatea Downs",2026-05-01,Repairs,1500,1494
+"Kahikatea Downs",2025-06-01,Insurance,950,950
+"Kahikatea Downs",2025-07-01,Insurance,950,950
+"Kahikatea Downs",2025-08-01,Insurance,950,950
+"Kahikatea Downs",2025-09-01,Insurance,950,950
+"Kahikatea Downs",2025-10-01,Insurance,950,950
+"Kahikatea Downs",2025-11-01,Insurance,950,950
+"Kahikatea Downs",2025-12-01,Insurance,950,950
+"Kahikatea Downs",2026-01-01,Insurance,950,950
+"Kahikatea Downs",2026-02-01,Insurance,950,950
+"Kahikatea Downs",2026-03-01,Insurance,950,950
+"Kahikatea Downs",2026-04-01,Insurance,950,950
+"Kahikatea Downs",2026-05-01,Insurance,950,950
+"Kahikatea Downs",2025-06-01,Rates,0,0
+"Kahikatea Downs",2025-07-01,Rates,0,0
+"Kahikatea Downs",2025-08-01,Rates,3100,3100
+"Kahikatea Downs",2025-09-01,Rates,0,0
+"Kahikatea Downs",2025-10-01,Rates,0,0
+"Kahikatea Downs",2025-11-01,Rates,3100,3100
+"Kahikatea Downs",2025-12-01,Rates,0,0
+"Kahikatea Downs",2026-01-01,Rates,0,0
+"Kahikatea Downs",2026-02-01,Rates,3100,3100
+"Kahikatea Downs",2026-03-01,Rates,0,0
+"Kahikatea Downs",2026-04-01,Rates,0,0
+"Kahikatea Downs",2026-05-01,Rates,3100,3100
+"Kahikatea Downs",2025-06-01,Interest,5200,5200
+"Kahikatea Downs",2025-07-01,Interest,5200,5200
+"Kahikatea Downs",2025-08-01,Interest,5200,5200
+"Kahikatea Downs",2025-09-01,Interest,5200,5200
+"Kahikatea Downs",2025-10-01,Interest,5200,5200
+"Kahikatea Downs",2025-11-01,Interest,5200,5200
+"Kahikatea Downs",2025-12-01,Interest,5200,5200
+"Kahikatea Downs",2026-01-01,Interest,5200,5200
+"Kahikatea Downs",2026-02-01,Interest,5200,5200
+"Kahikatea Downs",2026-03-01,Interest,5200,5200
+"Kahikatea Downs",2026-04-01,Interest,5200,5200
+"Kahikatea Downs",2026-05-01,Interest,5200,5200
+"Windrow Cropping Ltd",2025-06-01,"Wheat Income",0,0
+"Windrow Cropping Ltd",2025-07-01,"Wheat Income",0,0
+"Windrow Cropping Ltd",2025-08-01,"Wheat Income",0,0
+"Windrow Cropping Ltd",2025-09-01,"Wheat Income",0,0
+"Windrow Cropping Ltd",2025-10-01,"Wheat Income",0,0
+"Windrow Cropping Ltd",2025-11-01,"Wheat Income",0,0
+"Windrow Cropping Ltd",2025-12-01,"Wheat Income",0,0
+"Windrow Cropping Ltd",2026-01-01,"Wheat Income",260000,143000
+"Windrow Cropping Ltd",2026-02-01,"Wheat Income",40000,105600
+"Windrow Cropping Ltd",2026-03-01,"Wheat Income",10000,61900
+"Windrow Cropping Ltd",2026-04-01,"Wheat Income",0,0
+"Windrow Cropping Ltd",2026-05-01,"Wheat Income",0,0
+"Windrow Cropping Ltd",2025-06-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2025-07-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2025-08-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2025-09-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2025-10-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2025-11-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2025-12-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2026-01-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2026-02-01,"Barley Income",90000,85575
+"Windrow Cropping Ltd",2026-03-01,"Barley Income",20000,20947
+"Windrow Cropping Ltd",2026-04-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2026-05-01,"Barley Income",0,0
+"Windrow Cropping Ltd",2025-06-01,Seed,0,0
+"Windrow Cropping Ltd",2025-07-01,Seed,0,0
+"Windrow Cropping Ltd",2025-08-01,Seed,0,0
+"Windrow Cropping Ltd",2025-09-01,Seed,14000,14152
+"Windrow Cropping Ltd",2025-10-01,Seed,16000,15896
+"Windrow Cropping Ltd",2025-11-01,Seed,4000,4091
+"Windrow Cropping Ltd",2025-12-01,Seed,0,0
+"Windrow Cropping Ltd",2026-01-01,Seed,0,0
+"Windrow Cropping Ltd",2026-02-01,Seed,0,0
+"Windrow Cropping Ltd",2026-03-01,Seed,0,0
+"Windrow Cropping Ltd",2026-04-01,Seed,9000,9005
+"Windrow Cropping Ltd",2026-05-01,Seed,6000,6100
+"Windrow Cropping Ltd",2025-06-01,Fertiliser,0,0
+"Windrow Cropping Ltd",2025-07-01,Fertiliser,0,0
+"Windrow Cropping Ltd",2025-08-01,Fertiliser,4000,4222
+"Windrow Cropping Ltd",2025-09-01,Fertiliser,16000,16782
+"Windrow Cropping Ltd",2025-10-01,Fertiliser,12000,12461
+"Windrow Cropping Ltd",2025-11-01,Fertiliser,5000,4945
+"Windrow Cropping Ltd",2025-12-01,Fertiliser,0,0
+"Windrow Cropping Ltd",2026-01-01,Fertiliser,0,0
+"Windrow Cropping Ltd",2026-02-01,Fertiliser,0,0
+"Windrow Cropping Ltd",2026-03-01,Fertiliser,8000,8001
+"Windrow Cropping Ltd",2026-04-01,Fertiliser,6000,5845
+"Windrow Cropping Ltd",2026-05-01,Fertiliser,0,0
+"Windrow Cropping Ltd",2025-06-01,Agrichemicals,0,0
+"Windrow Cropping Ltd",2025-07-01,Agrichemicals,0,0
+"Windrow Cropping Ltd",2025-08-01,Agrichemicals,2000,2083
+"Windrow Cropping Ltd",2025-09-01,Agrichemicals,6000,6206
+"Windrow Cropping Ltd",2025-10-01,Agrichemicals,9000,8820
+"Windrow Cropping Ltd",2025-11-01,Agrichemicals,8000,7968
+"Windrow Cropping Ltd",2025-12-01,Agrichemicals,5000,4873
+"Windrow Cropping Ltd",2026-01-01,Agrichemicals,2000,2047
+"Windrow Cropping Ltd",2026-02-01,Agrichemicals,0,0
+"Windrow Cropping Ltd",2026-03-01,Agrichemicals,0,0
+"Windrow Cropping Ltd",2026-04-01,Agrichemicals,3000,2919
+"Windrow Cropping Ltd",2026-05-01,Agrichemicals,2000,2057
+"Windrow Cropping Ltd",2025-06-01,Contracting,0,0
+"Windrow Cropping Ltd",2025-07-01,Contracting,0,0
+"Windrow Cropping Ltd",2025-08-01,Contracting,0,0
+"Windrow Cropping Ltd",2025-09-01,Contracting,3000,3054
+"Windrow Cropping Ltd",2025-10-01,Contracting,4000,4076
+"Windrow Cropping Ltd",2025-11-01,Contracting,2000,1917
+"Windrow Cropping Ltd",2025-12-01,Contracting,5000,4820
+"Windrow Cropping Ltd",2026-01-01,Contracting,28000,27574
+"Windrow Cropping Ltd",2026-02-01,Contracting,18000,18013
+"Windrow Cropping Ltd",2026-03-01,Contracting,6000,6289
+"Windrow Cropping Ltd",2026-04-01,Contracting,0,0
+"Windrow Cropping Ltd",2026-05-01,Contracting,0,0
+"Windrow Cropping Ltd",2025-06-01,Wages,7000,7305
+"Windrow Cropping Ltd",2025-07-01,Wages,7000,7295
+"Windrow Cropping Ltd",2025-08-01,Wages,7000,7410
+"Windrow Cropping Ltd",2025-09-01,Wages,7000,7037
+"Windrow Cropping Ltd",2025-10-01,Wages,7000,7268
+"Windrow Cropping Ltd",2025-11-01,Wages,7000,6969
+"Windrow Cropping Ltd",2025-12-01,Wages,7000,6668
+"Windrow Cropping Ltd",2026-01-01,Wages,7000,6652
+"Windrow Cropping Ltd",2026-02-01,Wages,7000,7007
+"Windrow Cropping Ltd",2026-03-01,Wages,7000,7282
+"Windrow Cropping Ltd",2026-04-01,Wages,7000,7281
+"Windrow Cropping Ltd",2026-05-01,Wages,7000,6910
+"Windrow Cropping Ltd",2025-06-01,Fuel,800,840
+"Windrow Cropping Ltd",2025-07-01,Fuel,800,789
+"Windrow Cropping Ltd",2025-08-01,Fuel,1200,1266
+"Windrow Cropping Ltd",2025-09-01,Fuel,2600,2505
+"Windrow Cropping Ltd",2025-10-01,Fuel,3200,3099
+"Windrow Cropping Ltd",2025-11-01,Fuel,2400,2392
+"Windrow Cropping Ltd",2025-12-01,Fuel,2600,2588
+"Windrow Cropping Ltd",2026-01-01,Fuel,4800,4870
+"Windrow Cropping Ltd",2026-02-01,Fuel,4200,4027
+"Windrow Cropping Ltd",2026-03-01,Fuel,2600,2490
+"Windrow Cropping Ltd",2026-04-01,Fuel,1400,1371
+"Windrow Cropping Ltd",2026-05-01,Fuel,900,905
+"Windrow Cropping Ltd",2025-06-01,Repairs,1800,1796
+"Windrow Cropping Ltd",2025-07-01,Repairs,2000,1975
+"Windrow Cropping Ltd",2025-08-01,Repairs,2400,2421
+"Windrow Cropping Ltd",2025-09-01,Repairs,3000,2892
+"Windrow Cropping Ltd",2025-10-01,Repairs,2600,2494
+"Windrow Cropping Ltd",2025-11-01,Repairs,3400,3539
+"Windrow Cropping Ltd",2025-12-01,Repairs,4200,7560
+"Windrow Cropping Ltd",2026-01-01,Repairs,3800,3862
+"Windrow Cropping Ltd",2026-02-01,Repairs,2600,2464
+"Windrow Cropping Ltd",2026-03-01,Repairs,2000,1930
+"Windrow Cropping Ltd",2026-04-01,Repairs,1800,1883
+"Windrow Cropping Ltd",2026-05-01,Repairs,1600,1564
+"Windrow Cropping Ltd",2025-06-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2025-07-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2025-08-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2025-09-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2025-10-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2025-11-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2025-12-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2026-01-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2026-02-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2026-03-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2026-04-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2026-05-01,Insurance,1150,1150
+"Windrow Cropping Ltd",2025-06-01,Rates,0,0
+"Windrow Cropping Ltd",2025-07-01,Rates,0,0
+"Windrow Cropping Ltd",2025-08-01,Rates,2800,2800
+"Windrow Cropping Ltd",2025-09-01,Rates,0,0
+"Windrow Cropping Ltd",2025-10-01,Rates,0,0
+"Windrow Cropping Ltd",2025-11-01,Rates,2800,2800
+"Windrow Cropping Ltd",2025-12-01,Rates,0,0
+"Windrow Cropping Ltd",2026-01-01,Rates,0,0
+"Windrow Cropping Ltd",2026-02-01,Rates,2800,2800
+"Windrow Cropping Ltd",2026-03-01,Rates,0,0
+"Windrow Cropping Ltd",2026-04-01,Rates,0,0
+"Windrow Cropping Ltd",2026-05-01,Rates,2800,2800
+"Windrow Cropping Ltd",2025-06-01,Interest,6800,6800
+"Windrow Cropping Ltd",2025-07-01,Interest,6800,6800
+"Windrow Cropping Ltd",2025-08-01,Interest,6800,6800
+"Windrow Cropping Ltd",2025-09-01,Interest,6800,6800
+"Windrow Cropping Ltd",2025-10-01,Interest,6800,6800
+"Windrow Cropping Ltd",2025-11-01,Interest,6800,6800
+"Windrow Cropping Ltd",2025-12-01,Interest,6800,6800
+"Windrow Cropping Ltd",2026-01-01,Interest,6800,6800
+"Windrow Cropping Ltd",2026-02-01,Interest,6800,6800
+"Windrow Cropping Ltd",2026-03-01,Interest,6800,6800
+"Windrow Cropping Ltd",2026-04-01,Interest,6800,6800
+"Windrow Cropping Ltd",2026-05-01,Interest,6800,6800

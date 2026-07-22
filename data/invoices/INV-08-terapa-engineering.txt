@@ -1,0 +1,17 @@
+TE RAPA ENGINEERING LTD
+Tax Invoice
+GST No. 66-778-990
+
+Invoice:      TRE-5521
+Date:         02/06/2026
+Client:       RIVERBEND DAIRY LTD
+
+--------------------------------------------------------
+Feed wagon repairs - chain and floor
+  Labour 6.5 hrs @ 95.00                        617.50
+  Parts - chain links, floor plate               284.30
+--------------------------------------------------------
+Subtotal                                        901.80
+GST 15%                                         135.27
+TOTAL DUE                                     1,037.07
+--------------------------------------------------------

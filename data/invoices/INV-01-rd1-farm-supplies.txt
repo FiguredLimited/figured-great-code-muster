@@ -1,0 +1,18 @@
+RD1 HAMILTON
+Tax Invoice
+GST No. 99-887-766
+
+Invoice no:   H-208841
+Date:         18/05/2026
+Account:      RIVERBEND DAIRY LTD
+
+--------------------------------------------------------
+Calf meal 20% protein, bulk 1.5 tonne         1,340.00
+Mineral pellets, 4 x 25kg                       612.50
+Freight - Riverbend Rd                           84.00
+--------------------------------------------------------
+Subtotal                                      2,036.50
+GST 15%                                         305.48
+TOTAL DUE                                     2,341.98
+--------------------------------------------------------
+Payment due 20th of month following invoice.

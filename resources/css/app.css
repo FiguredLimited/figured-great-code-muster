@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+
+@source '../js/**/*.vue';
+
+/* Figured design-system tokens — values from the "Figured App - Design System"
+   token sheet (colors_and_type.css), itself sourced from figured-webapp's
+   _colours.scss. System-font stacks stand in for Roboto/Inconsolata. */
+@theme {
+    --font-sans: Roboto, 'Helvetica Neue', Helvetica, Arial, ui-sans-serif, system-ui, sans-serif;
+    --font-mono: Inconsolata, ui-monospace, SFMono-Regular, Menlo, Consolas, 'Lucida Console', monospace;
+
+    /* Brand blues */
+    --color-fg-main-blue: #296fdc;
+    --color-fg-main-blue-hover: #225ebb;
+    --color-fg-main-blue-30: #bed3f4;
+    --color-fg-main-blue-15: #dfeafa;
+    --color-fg-main-blue-9: #ecf2fc;
+    --color-fg-dark-blue: #102c58;
+    --color-fg-dark-blue-30: #b7bfcc;
+
+    /* Accents */
+    --color-fg-light-blue: #1395ba;
+    --color-fg-light-blue-15: #dceff5;
+    --color-fg-green: #6abe83;
+    --color-fg-brown: #9c5a3a;
+    --color-fg-brown-15: #f0e7e2;
+
+    /* Neutrals */
+    --color-fg-dark-grey: #455a64;
+    --color-fg-mid-grey: #607d8b;
+    --color-fg-light-grey: #90a4ae;
+    --color-fg-muted-grey: #cfd8dc;
+    --color-fg-pale-grey: #eceff1;
+    --color-fg-super-pale-grey: #f4f6f7;
+
+    /* Semantic */
+    --color-fg-positive: #13c366;
+    --color-fg-positive-dark: #0d8847;
+    --color-fg-positive-15: #dcf6e8;
+    --color-fg-positive-9: #eafaf1;
+    --color-fg-warning: #f7ba2a;
+    --color-fg-warning-text: #db9c2e;
+    --color-fg-warning-15: #fef5df;
+    --color-fg-danger: #ff4949;
+    --color-fg-danger-dark: #d93e3e;
+    --color-fg-danger-30: #ffc8c8;
+    --color-fg-danger-15: #ffe4e4;
+    --color-fg-danger-9: #ffefef;
+}
+
+@layer base {
+    body {
+        background-color: var(--color-fg-super-pale-grey);
+        color: var(--color-fg-dark-grey);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Figured tables align numeric columns with tabular figures */
+    .font-mono,
+    code,
+    pre {
+        font-variant-numeric: tabular-nums;
+    }
+
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+        outline: 2px solid var(--color-fg-main-blue);
+        outline-offset: -1px;
+    }
+}
