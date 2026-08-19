@@ -29,6 +29,7 @@ Route::put('/invoices/{invoice}', [InvoiceController::class, 'update']);
 Route::get('/stock', [StockController::class, 'index']);
 Route::post('/stock-movements', [StockController::class, 'storeMovement']);
 Route::delete('/stock-movements/{stockMovement}', [StockController::class, 'destroyMovement']);
+Route::post('/stock/parse', [StockController::class, 'parseRecords']);
 
 // The AI proxy. The only way frontend code should ever talk to Claude -
 // the API key lives in .env and never leaves the server.
