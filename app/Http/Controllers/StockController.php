@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BankTransaction;
 use App\Models\Email;
 use App\Models\Farm;
+use App\Models\Invoice;
 use App\Models\ReportLine;
 use App\Models\StockClass;
 use App\Models\StockMovement;
@@ -12,6 +13,7 @@ use App\Models\StockRecord;
 use App\Services\Claude;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
 use RuntimeException;
 
@@ -21,7 +23,7 @@ class StockController extends Controller
      * What Claude is allowed to say. Anything outside these lists is dropped
      * before the suggestion reaches the browser.
      */
-    private const TYPES = ['birth', 'purchase', 'death', 'sale'];
+    private const TYPES = ['birth', 'purchase', 'death', 'sale', 'loss'];
 
     private const FLAGS = ['duplicate', 'correction', 'estimate', 'mislabelled'];
 
@@ -35,11 +37,15 @@ class StockController extends Controller
     /** Bank narrations worth showing the model. The feed is not farm-scoped, so this is a net, not a filter. */
     private const BANK_KEYWORDS = ['LIVESTOCK', 'PGG', 'NZ FARMERS', 'CARRFIELDS', 'SALEYARD', 'STOCK AGENT'];
 
+    /** This farm's livestock income lines in the monthly report. */
+    private const STOCK_INCOME = ['Lamb Sales', 'Cattle Sales', 'Wool Income'];
+
     public function index(): JsonResponse
     {
         return response()->json([
             'classes' => StockClass::with('movements')->orderBy('id')->get(),
             'records' => StockRecord::orderBy('recorded_on')->orderBy('id')->get(),
+            'cross_records' => $this->crossReferences(),
         ]);
     }
 
@@ -47,7 +53,7 @@ class StockController extends Controller
     {
         $validated = $request->validate([
             'stock_class_id' => ['required', 'exists:stock_classes,id'],
-            'type' => ['required', 'in:birth,purchase,death,sale'],
+            'type' => ['required', 'in:birth,purchase,death,sale,loss'],
             'quantity' => ['required', 'integer', 'min:1'],
             'note' => ['nullable', 'string'],
         ]);
@@ -67,48 +73,68 @@ class StockController extends Controller
      * Read the raw paper trail and propose the movements it implies.
      *
      * The division of labour matters: Claude only *classifies* prose - which
-     * stock class, which of the four movement types, how many, and whether a
+     * stock class, which of the five movement types, how many, and whether a
      * record duplicates or corrects another. The arithmetic stays in code, on
      * both sides of the wire, so nothing can quietly balance a class by
      * inventing an animal. Nothing is written to the database here either -
      * every proposal goes back to the adviser to accept or reject.
      */
-    public function suggestMovements(): JsonResponse
+    public function suggestMovements(Request $request): JsonResponse
     {
         $classes = StockClass::with('movements')->orderBy('id')->get();
         $records = StockRecord::orderBy('recorded_on')->orderBy('id')->get();
+        $data = $this->dataPrompt($classes, $records);
 
+        // Same books in, same answer out. The fingerprint covers everything the
+        // prompt is built from, so keying a movement in invalidates it at once.
+        $key = 'stock-suggestions:'.hash('xxh128', $data);
+        if (! $request->boolean('refresh') && ($hit = Cache::get($key))) {
+            return response()->json($hit + ['cached' => true]);
+        }
+
+        // Two passes, sent together: one returns movements to key in, the other
+        // the advisory findings. Splitting them halves the longest reply, and
+        // they generate concurrently, so the wall clock is the slower of the two
+        // rather than the sum.
         try {
-            $reply = Claude::ask($this->systemPrompt(), $this->dataPrompt($classes, $records));
+            $replies = Claude::askMany([
+                'movements' => ['system' => $this->movementsSystemPrompt(), 'prompt' => $data],
+                'findings' => ['system' => $this->findingsSystemPrompt(), 'prompt' => $data],
+            ]);
         } catch (RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 502);
         }
 
-        $decoded = Claude::decodeJson($reply);
-        if ($decoded === null) {
+        $movements = Claude::decodeJson($replies['movements']);
+        $findings = Claude::decodeJson($replies['findings']);
+        if ($movements === null && $findings === null) {
             return response()->json(['error' => 'Could not read the suggestion as JSON. Try again.'], 502);
         }
 
-        $proposals = $this->cleanProposals($decoded['proposals'] ?? [], $classes, $records);
-        $skipped = $this->cleanSkipped($decoded['skipped'] ?? [], $records);
+        $proposals = $this->cleanProposals($movements['proposals'] ?? [], $classes, $records);
+        $skipped = $this->cleanSkipped($movements['skipped'] ?? [], $records);
         [$proposals, $skipped] = $this->preferLatestDuplicates($proposals, $skipped, $records);
 
-        return response()->json([
+        $payload = [
             'proposals' => $proposals,
             'skipped' => $skipped,
-            'gaps' => $this->cleanGaps($decoded['gaps'] ?? []),
-            'residuals' => $this->cleanResiduals($decoded['residuals'] ?? [], $classes, $records),
-        ]);
+            'gaps' => $this->cleanGaps($findings['gaps'] ?? []),
+            'residuals' => $this->cleanResiduals($findings['residuals'] ?? [], $classes, $records),
+        ];
+
+        Cache::put($key, $payload, now()->addHours(6));
+
+        return response()->json($payload + ['cached' => false]);
     }
 
-    private function systemPrompt(): string
+    private function domainRules(): string
     {
         return <<<'PROMPT'
         You are helping a rural accounting adviser in New Zealand reconcile a sheep
         and beef farm's livestock for the stock year 1 July 2025 - 30 June 2026.
 
         For each stock class the reconciliation is:
-            opening + births + purchases - deaths - sales = closing
+            opening + births + purchases - deaths - sales - losses = closing
 
         Read the farm's raw paper trail - diary notes, sale dockets, text messages -
         and propose the stock movements it implies. You are also given corroborating
@@ -143,15 +169,50 @@ class StockController extends Controller
         - Counting the deposits is the way to settle whether two identical dockets are
           one sale filed twice or two real sales. One deposit means one sale.
 
+        DEATH OR LOSS - THE FIFTH TYPE
+        Not every animal that leaves the farm is sold or found dead, and the two are
+        not the same thing on paper.
+
+        - "death" is a COUNTED animal. A carcass found, a ewe put down, a homekill.
+          The farmer states the number because they saw the animals.
+        - "loss" is stock that CANNOT BE ACCOUNTED FOR. Missing after a storm or a
+          flood, strayed, drowned in a creek, or a tally the farmer has estimated
+          rather than walked out and counted. The tell is hedging language: "about",
+          "probably more", "will know for sure at crutching", "somewhere up the back".
+
+        Use "loss" whenever the record itself says the count is not final. It subtracts
+        exactly as a death does, so the arithmetic is unchanged - but the two sit on
+        separate lines, and that separation is the point. Deaths are the figure that
+        goes to an insurer or into a tax return; losses are unconfirmed and cannot be
+        claimed. Filing an estimate as a death makes the page look tidier and quietly
+        overstates a number the client may be about to swear to. Never do it.
+
+        Cross-check a loss like anything else:
+        - No money moves when stock is lost, so nothing in the bank feed will confirm
+          one. "unconfirmed" is the correct verdict and is not a weakness in the
+          finding - say so in "evidence".
+        - Check anyway. A deposit that lines up with the date and roughly the head
+          count means those animals were SOLD, not lost. That is "contradicted" and
+          the adviser needs to see it.
+        - A loss is still a movement and still obeys THE RULE THAT MATTERS MOST: it
+          needs a paper trail record behind it, its quantity is the figure the record
+          actually states, and it is flagged "estimate". You may NEVER propose a loss
+          the records do not describe, and never pick its quantity to make a class
+          balance. Where a record hints at more than it counts, the remainder belongs
+          in "residuals", not in a proposal.
+
         Rules:
-        - Every proposal is one of four types: birth, purchase, death, sale. Quantity
-          is always a positive whole number - the type carries the direction.
+        - Every proposal is one of five types: birth, purchase, death, sale, loss.
+          Quantity is always a positive whole number - the type carries the direction.
+          Births and purchases add; deaths, sales and losses subtract.
         - Work out the stock class from the words used. Ewes, two-tooths and cull ewes
           are Ewes. Docked or sold lambs are Lambs. Cows, calves, heifers, steers,
           R2 steers and cull cows are Cattle.
         - Lambs born this year stay in the Lambs class for this reconciliation.
-        - Animals lost to weather, illness, calving or lambing trouble are deaths. So
-          is homekill - an animal killed for the freezer has left the flock.
+        - Animals lost to weather, illness, calving or lambing trouble are deaths,
+          provided the farmer counted them. So is homekill - an animal killed for the
+          freezer has left the flock. See DEATH OR LOSS above for the ones they did
+          not count.
         - One real-world event, one movement. The same event often appears twice: the
           same docket number entered on two dates, or a docket and a diary note
           describing the same mob leaving. Propose it once and put the other in
@@ -170,6 +231,17 @@ class StockController extends Controller
         - Movements already entered are listed for you. Do not propose them again.
         - If a record implies no movement, leave it out of all three lists.
 
+        PROMPT;
+    }
+
+    /** Task and schema for the call that produces movements to key in. */
+    private function movementsSystemPrompt(): string
+    {
+        return $this->domainRules()."\n\n".<<<'PROMPT'
+        YOUR TASK
+        Return only the movements to key in, and the records you set aside. Do not
+        report gaps or residuals in this reply - a second pass handles those.
+
         Reply with JSON and nothing else - no prose, no markdown fences:
 
         {
@@ -183,8 +255,8 @@ class StockController extends Controller
               "confidence": "high",
               "flag": null,
               "corroboration": "confirmed",
-              "evidence": "Bank 12 Dec 2025 PGG LIVESTOCK PROCEEDS $26,880.00 matches the docket total exactly.",
-              "reasoning": "One short sentence on how you read the record."
+              "evidence": "Bank 12 Dec 2025 PGG LIVESTOCK PROCEEDS $26,880.00 matches the docket exactly.",
+              "reasoning": "How you read the record."
             }
           ],
           "skipped": [
@@ -193,11 +265,38 @@ class StockController extends Controller
               "flag": "duplicate",
               "reason": "Same docket S-40417 as record 11, and only one deposit of $25,560.00 in the bank."
             }
-          ],
+          ]
+        }
+
+        "note" is what gets saved against the movement: under 100 characters, pointing
+        at the source document. "flag" is null unless one of duplicate, correction,
+        estimate or mislabelled applies. "confidence" is high, medium or low.
+        "corroboration" is "confirmed" if other records back this movement up,
+        "contradicted" if they disagree with it, "unconfirmed" if nothing outside the
+        paper trail speaks to it - which is normal and fine for births, deaths and
+        losses, since no money moves.
+
+        Keep "reasoning" and "evidence" to ONE short sentence each. They are read at a
+        glance in a review queue, not filed. Never pad them.
+        PROMPT;
+    }
+
+    /** Task and schema for the call that produces advisory findings. */
+    private function findingsSystemPrompt(): string
+    {
+        return $this->domainRules()."\n\n".<<<'PROMPT'
+        YOUR TASK
+        Do not return movements - a separate pass keys those in. Report only what the
+        adviser should chase up: things the rest of the books show that the paper trail
+        does not support, and why a class may not balance.
+
+        Reply with JSON and nothing else - no prose, no markdown fences:
+
+        {
           "gaps": [
             {
               "title": "Short label for what is missing",
-              "detail": "What the other records show, why there is no movement for it, and what to ask the farmer.",
+              "detail": "What the books show, why there is no movement, and what to ask.",
               "evidence": "The specific bank line or report figure, with date and amount."
             }
           ],
@@ -206,23 +305,23 @@ class StockController extends Controller
               "stock_class_id": 1,
               "likely_cause": "One sentence naming the most likely reason this class will not balance.",
               "source_record_ids": [21],
-              "ask_the_farmer": "The question the adviser should put to the farmer to settle it."
+              "ask_the_farmer": "The question that would settle it."
             }
           ]
         }
 
-        "residuals" is your read of which classes will still not balance once your
-        proposals are keyed in, and why. Do NOT put a number in it - the app works out
-        the size of any difference itself. Give a residual entry only where the records
-        genuinely point at a cause; if a class should balance cleanly, leave it out.
+        BE BRIEF. This is a worklist, not a report.
+        - At most 6 gaps, the most material first, one per underlying issue. Do not
+          raise a separate gap for every month of a recurring pattern - group them.
+        - "detail" is at most two short sentences. "evidence" is a single line of dates
+          and amounts, not an argument.
+        - Small timing or rounding differences between a report figure and a docket are
+          not gaps. Raise a gap only where stock may actually have moved unrecorded.
 
-        "note" is what gets saved against the movement: under 100 characters, pointing
-        at the source document. "flag" is null unless one of duplicate, correction,
-        estimate or mislabelled applies. "confidence" is high, medium or low.
-        "corroboration" is "confirmed" if other records back this movement up,
-        "contradicted" if they disagree with it, "unconfirmed" if nothing outside the
-        paper trail speaks to it - which is normal and fine for deaths and births,
-        since no money moves. Always fill in "evidence" with what you actually checked.
+        "residuals" is your read of which classes will still not balance, and why. Do
+        NOT put a number in it - the app works out the size of any difference itself.
+        Give a residual only where the records genuinely point at a cause; if a class
+        should balance cleanly, leave it out.
         PROMPT;
     }
 
@@ -256,66 +355,130 @@ class StockController extends Controller
     }
 
     /**
-     * Corroborating records from the rest of the practice's database. None of
-     * this may create a movement; it exists so the adviser is told whether the
-     * money agrees with the paperwork.
+     * Corroborating records from the rest of the practice's database: the bank
+     * feed, this farm's monthly income lines, the client's emails and their
+     * supplier invoices.
+     *
+     * The page and the prompt both read this one method, so what the adviser
+     * sees in the second paper trail is exactly what Claude was given - the
+     * "Checked:" line on a suggestion can always be traced to a row on screen.
+     *
+     * "scoped" says whether a record can be proven to belong to this farm.
+     * Bank rows cannot: bank_transactions has no farm_id and the fixture feed
+     * demonstrably carries another client's dairy income.
      */
-    private function evidencePrompt(): string
+    private function crossReferences(): Collection
     {
+        $farm = Farm::where('name', self::FARM)->first();
+
         $bank = BankTransaction::where(function ($query) {
             foreach (self::BANK_KEYWORDS as $keyword) {
                 $query->orWhere('description', 'like', "%{$keyword}%");
             }
         })->orderBy('transacted_on')->get()
-            ->map(fn (BankTransaction $t) => sprintf(
-                '%s | %s | %s%s',
-                $t->transacted_on->format('Y-m-d'),
-                $t->description,
-                $t->amount < 0 ? '-' : '+',
-                number_format(abs((float) $t->amount), 2)
-            ))->implode("\n");
+            ->map(fn (BankTransaction $t) => [
+                'kind' => 'Bank',
+                'recorded_on' => $t->transacted_on->format('Y-m-d'),
+                'title' => $t->description,
+                'body' => $t->amount < 0 ? 'Payment out of the account.' : 'Deposit into the account.',
+                'amount' => (float) $t->amount,
+                'scoped' => false,
+            ]);
 
-        $farm = Farm::where('name', self::FARM)->first();
-
-        $reportLines = $farm
+        $report = $farm
             ? ReportLine::where('farm_id', $farm->id)
-                ->whereIn('category', ['Lamb Sales', 'Cattle Sales', 'Wool Income'])
+                ->whereIn('category', self::STOCK_INCOME)
                 ->where('actual', '!=', 0)
                 ->orderBy('month')->get()
-                ->map(fn (ReportLine $l) => sprintf(
-                    '%s | %s | actual $%s',
-                    $l->month->format('Y-m'),
-                    $l->category,
-                    number_format((float) $l->actual, 2)
-                ))->implode("\n")
-            : '';
+                ->map(fn (ReportLine $l) => [
+                    'kind' => 'Report',
+                    'recorded_on' => $l->month->format('Y-m-d'),
+                    'title' => $l->category.' - '.$l->month->format('M Y'),
+                    'body' => 'Budget $'.number_format((float) $l->budget, 2)
+                        .', actual $'.number_format((float) $l->actual, 2).'. GST-exclusive and rounded.',
+                    'amount' => (float) $l->actual,
+                    'scoped' => true,
+                ])
+            : collect();
 
-        // The client's own words, scoped by sender - this farm's emails only.
         $emails = Email::where('from_email', 'like', '%kahikateadowns%')
             ->orderBy('received_at')->get()
-            ->map(fn (Email $e) => sprintf(
-                "%s | %s | %s\n%s",
-                $e->received_at->format('Y-m-d'),
-                $e->from_name,
-                $e->subject,
-                trim($e->body)
-            ))->implode("\n\n");
+            ->map(fn (Email $e) => [
+                'kind' => 'Email',
+                'recorded_on' => $e->received_at->format('Y-m-d'),
+                'title' => $e->from_name.' - '.$e->subject,
+                'body' => trim($e->body),
+                'amount' => null,
+                'scoped' => true,
+            ]);
+
+        // Invoices are keyed in by hand, so invoice_date is usually still null;
+        // fall back to the date printed on the scan.
+        $invoices = Invoice::where('raw_text', 'like', '%KAHIKATEA%')->get()
+            ->map(fn (Invoice $i) => [
+                'kind' => 'Invoice',
+                'recorded_on' => $i->invoice_date?->format('Y-m-d') ?? $this->dateFromScan($i->raw_text),
+                'title' => $i->supplier ?? trim(strtok($i->raw_text, "\n")),
+                'body' => $this->invoiceSummary($i->raw_text),
+                'amount' => $i->total !== null ? -1 * (float) $i->total : null,
+                'scoped' => true,
+            ]);
+
+        return $bank->concat($report)->concat($emails)->concat($invoices)
+            ->sortBy([['recorded_on', 'asc'], ['kind', 'asc']])
+            ->values();
+    }
+
+    /** Pull "Date: 28/03/2026" off an invoice scan nobody has keyed in yet. */
+    private function dateFromScan(string $rawText): ?string
+    {
+        if (preg_match('/Date:\s*(\d{2})\/(\d{2})\/(\d{4})/', $rawText, $m)) {
+            return "{$m[3]}-{$m[2]}-{$m[1]}";
+        }
+
+        return null;
+    }
+
+    /** The line items off an invoice scan, without the letterhead and totals. */
+    private function invoiceSummary(string $rawText): string
+    {
+        $summary = collect(preg_split('/\R/', $rawText))
+            ->map(fn (string $line) => trim($line))
+            ->filter(fn (string $line) => $line !== ''
+                && ! str_starts_with($line, '---')
+                && ! preg_match('/^(Tax Invoice|GST No\.|Invoice:|Date:|Client:|Account:|Subtotal|GST 15%|TOTAL DUE|Please quote|Direct credit)/i', $line))
+            ->slice(1)
+            ->implode('; ');
+
+        return mb_substr($summary, 0, 400);
+    }
+
+    /** The same records again, flattened into the prompt. */
+    private function evidencePrompt(): string
+    {
+        $rows = $this->crossReferences()
+            ->map(fn (array $r) => sprintf(
+                '%s | %-7s | %s%s | %s%s',
+                $r['recorded_on'] ?? 'undated',
+                $r['kind'],
+                $r['title'],
+                $r['amount'] !== null
+                    ? ' | '.($r['amount'] < 0 ? '-' : '+').number_format(abs($r['amount']), 2)
+                    : '',
+                $r['body'],
+                $r['scoped'] ? '' : ' [NOT FARM-SCOPED]'
+            ))
+            ->implode("\n");
 
         return <<<TEXT
         CORROBORATING EVIDENCE - may confirm or contradict a movement, may never create one
 
-        BANK FEED, livestock-related lines. WARNING: this feed is not scoped to one
-        farm and demonstrably contains another client's dairy income. Amount matches
-        are corroboration, not proof of ownership.
-        $bank
+        Rows marked [NOT FARM-SCOPED] come from the practice's shared bank feed, which
+        has no farm column and demonstrably carries another client's dairy income. An
+        exact amount match there is strong corroboration, never proof of ownership.
+        Report, Email and Invoice rows are this farm's.
 
-        MONTHLY REPORT, this farm's livestock income (scoped to this farm, GST-exclusive
-        and rounded, so use it to spot months with income but no paperwork - not to
-        derive head counts)
-        $reportLines
-
-        EMAILS FROM THE CLIENT
-        $emails
+        $rows
         TEXT;
     }
 

@@ -118,7 +118,7 @@ return new class extends Migration
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('stock_class_id')->constrained()->cascadeOnDelete();
-            $table->string('type'); // birth, purchase, death, sale
+            $table->string('type'); // birth, purchase, death, sale, loss
             $table->integer('quantity');
             $table->string('note')->nullable();
             $table->timestamps();
