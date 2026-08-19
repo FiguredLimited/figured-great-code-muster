@@ -8,6 +8,7 @@ const records = ref([]);
 const loading = ref(true);
 const saving = ref(false);
 const openClasses = ref(new Set());
+const paperTrailOpen = ref(false);
 
 function toggleClass(id) {
     const next = new Set(openClasses.value);
@@ -93,10 +94,26 @@ const parseError = ref('');
 const parseResult = ref(null);
 const copied = ref(false);
 
+// The parse itself just fires and waits on the response, but a bar that
+// creeps toward 100% over the ~30s the model usually takes reassures the
+// farmer it hasn't hung — it caps short of full until the response lands.
+const parseProgress = ref(0);
+const PARSE_DURATION_MS = 30000;
+let progressTimer = null;
+
 async function parseRecords() {
     parsing.value = true;
     parseError.value = '';
     parseResult.value = null;
+    parseProgress.value = 0;
+
+    const startedAt = Date.now();
+    clearInterval(progressTimer);
+    progressTimer = setInterval(() => {
+        const elapsed = Date.now() - startedAt;
+        parseProgress.value = Math.min(99, (elapsed / PARSE_DURATION_MS) * 100);
+    }, 100);
+
     try {
         const { data } = await axios.post('/api/stock/parse');
         parseResult.value = data;
@@ -104,6 +121,8 @@ async function parseRecords() {
         const body = e.response?.data;
         parseError.value = body?.raw ? `${body.error}\n\n${body.raw}` : (body?.error ?? e.message);
     } finally {
+        clearInterval(progressTimer);
+        parseProgress.value = 100;
         parsing.value = false;
     }
 }
@@ -394,7 +413,25 @@ const sourceBadgeClass = {
                 <!-- Raw source records -->
                 <div class="rounded border border-fg-muted-grey bg-white">
                     <div class="flex items-center justify-between gap-2 border-b border-fg-pale-grey px-4 py-2">
-                        <h3 class="text-sm font-semibold">The paper trail</h3>
+                        <button
+                            type="button"
+                            class="flex items-center gap-2"
+                            @click="paperTrailOpen = !paperTrailOpen"
+                        >
+                            <svg
+                                class="h-3.5 w-3.5 shrink-0 text-fg-light-grey transition-transform"
+                                :class="{ '-rotate-90': !paperTrailOpen }"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                            <h3 class="text-sm font-semibold">The paper trail</h3>
+                        </button>
                         <button
                             class="rounded bg-fg-main-blue px-3 py-1 text-xs font-medium text-white hover:bg-fg-main-blue-hover disabled:opacity-50"
                             :disabled="parsing"
@@ -403,7 +440,13 @@ const sourceBadgeClass = {
                             {{ parsing ? 'Parsing…' : 'Parse the paper trail' }}
                         </button>
                     </div>
-                    <ul>
+                    <div v-if="parsing" class="h-1 w-full overflow-hidden bg-fg-pale-grey">
+                        <div
+                            class="h-full bg-fg-main-blue transition-[width] duration-100 ease-linear"
+                            :style="{ width: parseProgress + '%' }"
+                        ></div>
+                    </div>
+                    <ul v-show="paperTrailOpen">
                         <li
                             v-for="record in records"
                             :key="record.id"
