@@ -2,12 +2,21 @@
 import axios from "axios";
 import { computed, onMounted, ref } from "vue";
 import { shortDate } from "../format";
+import {
+    buildReconciliationPrompt,
+    parseProposalPayload,
+    prepareReconciliationReport,
+} from "../stockReconciliationReport";
 
 const classes = ref([]);
 const records = ref([]);
 const loading = ref(true);
 const saving = ref(false);
 const openClasses = ref(new Set());
+const reportLoading = ref(false);
+const reportError = ref("");
+const reportText = ref("");
+const reportData = ref(null);
 
 function toggleClass(id) {
     const next = new Set(openClasses.value);
@@ -97,6 +106,9 @@ async function parseRecords() {
     parsing.value = true;
     parseError.value = '';
     parseResult.value = null;
+    reportError.value = "";
+    reportText.value = "";
+    reportData.value = null;
     try {
         const { data } = await axios.post('/api/stock/parse');
         parseResult.value = data;
@@ -284,6 +296,33 @@ async function copyJson() {
     await navigator.clipboard.writeText(parseJson.value);
     copied.value = true;
     setTimeout(() => (copied.value = false), 1500);
+}
+
+async function generateReport() {
+    reportLoading.value = true;
+    reportError.value = "";
+    reportText.value = "";
+    reportData.value = null;
+
+    try {
+        const proposals = parseProposalPayload(parseResult.value);
+        const preparedReport = prepareReconciliationReport(
+            classes.value,
+            proposals,
+            parseResult.value.unresolved,
+        );
+        reportData.value = preparedReport;
+        const { data } = await axios.post("/api/ai", {
+            system: "You are a careful livestock reconciliation assistant. Report only the supplied facts and calculations.",
+            prompt: buildReconciliationPrompt(preparedReport),
+        });
+
+        reportText.value = data.text;
+    } catch (error) {
+        reportError.value = error.response?.data?.error ?? error.message;
+    } finally {
+        reportLoading.value = false;
+    }
 }
 
 const sourceBadgeClass = {
@@ -802,5 +841,77 @@ const sourceBadgeClass = {
                 <pre class="mt-1 overflow-x-auto rounded bg-fg-super-pale-grey p-3 text-xs leading-relaxed">{{ parseJson }}</pre>
             </details>
         </div>
+
+        <section v-if="parseResult" class="mt-4 rounded border border-fg-muted-grey bg-white p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <h3 class="text-sm font-semibold">AI reconciliation report</h3>
+                    <p class="text-xs text-fg-mid-grey">
+                        Generate a report directly from the parsed proposals. Confirmed proposals are included in the
+                        calculations; excluded and unresolved records are listed for review.
+                    </p>
+                </div>
+                <button
+                    class="rounded bg-fg-main-blue px-4 py-1.5 text-sm font-medium text-white hover:bg-fg-main-blue-hover disabled:opacity-50"
+                    :disabled="reportLoading"
+                    @click="generateReport"
+                >
+                    {{ reportLoading ? 'Generating report…' : 'Generate reconciliation report' }}
+                </button>
+            </div>
+
+            <p v-if="reportError" class="mt-3 rounded bg-fg-danger-9 p-3 text-sm text-fg-danger-dark">
+                {{ reportError }}
+            </p>
+
+            <div v-if="reportData" class="mt-4 space-y-4">
+                <div class="flex flex-wrap gap-2 text-xs">
+                    <span class="rounded-full bg-fg-positive-15 px-2.5 py-1 text-fg-positive-dark">
+                        {{ reportData.counts.added_to_report }} confirmed proposal(s) added
+                    </span>
+                    <span class="rounded-full bg-fg-warning-15 px-2.5 py-1 text-fg-warning-text">
+                        {{ reportData.counts.needs_review }} proposal(s) need review
+                    </span>
+                    <span class="rounded-full bg-fg-super-pale-grey px-2.5 py-1 text-fg-mid-grey">
+                        {{ reportData.counts.already_keyed }} already keyed
+                    </span>
+                </div>
+
+                <div v-if="reportData.review_proposals.length || reportData.unresolved.length">
+                    <h4 class="mb-2 text-sm font-semibold">Needs review</h4>
+                    <ul class="space-y-2">
+                        <li
+                            v-for="proposal in reportData.review_proposals"
+                            :key="proposal.record_ids.join('-')"
+                            class="rounded bg-fg-warning-15 p-3 text-xs"
+                        >
+                            <p class="font-medium">
+                                Records {{ proposal.record_ids.join(', ') || 'not supplied' }}:
+                                {{ proposal.stock_class }} {{ proposal.type }} × {{ proposal.quantity }}
+                            </p>
+                            <p class="mt-1 text-fg-mid-grey">
+                                Confidence: {{ proposal.confidence ?? 'not supplied' }} · Flag: {{ proposal.flag ?? 'none' }}
+                            </p>
+                            <p class="mt-1">{{ proposal.reasoning || proposal.note }}</p>
+                        </li>
+                        <li
+                            v-for="item in reportData.unresolved"
+                            :key="`unresolved-${item.record_ids.join('-')}`"
+                            class="rounded bg-fg-warning-15 p-3 text-xs"
+                        >
+                            <p class="font-medium">
+                                Records {{ item.record_ids.join(', ') || 'not supplied' }}: unresolved
+                            </p>
+                            <p class="mt-1">{{ item.reason }}</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <div v-if="reportText">
+                    <h4 class="mb-2 text-sm font-semibold">Generated report</h4>
+                    <pre class="whitespace-pre-wrap rounded bg-fg-super-pale-grey p-3 font-sans text-sm leading-relaxed">{{ reportText }}</pre>
+                </div>
+            </div>
+        </section>
     </div>
 </template>
