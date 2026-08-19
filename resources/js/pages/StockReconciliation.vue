@@ -94,6 +94,7 @@ async function addMovement() {
 async function removeMovement(stockClass, movement) {
     await axios.delete(`/api/stock-movements/${movement.id}`);
     stockClass.movements = stockClass.movements.filter((m) => m.id !== movement.id);
+    delete keyedByMovement.value[movement.id];
 }
 
 // Hand the whole paper trail to Claude and get back proposed movements, each
@@ -101,7 +102,12 @@ async function removeMovement(stockClass, movement) {
 const parsing = ref(false);
 const parseError = ref('');
 const parseResult = ref(null);
+const proposals = ref([]);
 const copied = ref(false);
+const applyingUid = ref(null);
+const acceptedCount = ref(0);
+const acceptTotal = ref(0);
+const acceptingAll = ref(false);
 
 // The parse itself just fires and waits on the response, but a bar that
 // creeps toward 100% over the ~30s the model usually takes reassures the
@@ -114,6 +120,7 @@ async function parseRecords() {
     parsing.value = true;
     parseError.value = '';
     parseResult.value = null;
+    proposals.value = [];
     parseProgress.value = 0;
 
     const startedAt = Date.now();
@@ -129,6 +136,21 @@ async function parseRecords() {
     try {
         const { data } = await axios.post('/api/stock/parse');
         parseResult.value = data;
+        // Proposals have no id, so give each one a stable key to render against.
+        proposals.value = data.proposals.map((p, i) => ({
+            ...p,
+            uid: i,
+            forReport: false,
+            sentToReview: false,
+        }));
+        // Movements already in the books (the seeded docking tally) get linked to
+        // their records up front, so the paper trail shows them as keyed.
+        for (const proposal of proposals.value) {
+            const movement = matchingMovement(proposal);
+            if (movement) {
+                keyedByMovement.value[movement.id] = proposal.record_ids;
+            }
+        }
     } catch (e) {
         const body = e.response?.data;
         parseError.value = body?.raw ? `${body.error}\n\n${body.raw}` : (body?.error ?? e.message);
@@ -137,6 +159,124 @@ async function parseRecords() {
         parseProgress.value = 100;
         parsing.value = false;
     }
+}
+
+// A movement matching this proposal is already in the books - the seeded docking
+// tally is the obvious one. Accepting it again would silently double the count.
+function matchingMovement(proposal) {
+    const stockClass = classes.value.find((c) => c.id === proposal.stock_class_id);
+    return stockClass?.movements.find(
+        (m) => m.type === proposal.type && m.quantity === proposal.quantity,
+    );
+}
+
+function alreadyKeyed(proposal) {
+    return !!matchingMovement(proposal);
+}
+
+// Which raw records have made it into the tally, tracked per movement so deleting
+// a movement takes its records back out of the "in tally" state.
+const keyedByMovement = ref({});
+
+const keyedRecordIds = computed(() => new Set(Object.values(keyedByMovement.value).flat()));
+
+// Anything Claude flagged, was shaky about, or that looks already entered goes to
+// a human. Judged on what Claude originally said, so editing a card in the review
+// list does not make it jump into the accept-all pile mid-edit.
+const REVIEW_CONFIDENCE = 0.85;
+
+function needsReview(proposal) {
+    return (
+        proposal.sentToReview ||
+        !proposal.include ||
+        proposal.flag !== null ||
+        proposal.confidence < REVIEW_CONFIDENCE ||
+        alreadyKeyed(proposal)
+    );
+}
+
+const readyProposals = computed(() => proposals.value.filter((p) => !needsReview(p)));
+const reviewProposals = computed(() => proposals.value.filter((p) => needsReview(p)));
+const reportCount = computed(() => proposals.value.filter((p) => p.forReport).length);
+
+const flagLabel = {
+    duplicate: 'Possible duplicate',
+    superseded: 'Superseded by a later record',
+    same_event: 'Same event in two records',
+    source_mislabelled: 'Source label looks wrong',
+    quantity_estimated: 'Quantity estimated',
+};
+
+// Hard flags mean "this is probably wrong"; soft ones mean "check the number".
+const hardFlags = ['duplicate', 'superseded', 'same_event', 'source_mislabelled'];
+
+// Claude's own flag wins over the already-keyed hint: two genuinely different
+// movements can share a class, type and quantity (the 38 steers and the 38 cull
+// cows both do), so applying one must not relabel the other.
+function reviewBadge(proposal) {
+    if (proposal.flag) {
+        return { label: flagLabel[proposal.flag] ?? proposal.flag, hard: hardFlags.includes(proposal.flag) };
+    }
+    if (alreadyKeyed(proposal)) {
+        return { label: 'Already keyed', hard: false };
+    }
+    if (proposal.confidence < REVIEW_CONFIDENCE) {
+        return { label: 'Low confidence', hard: false };
+    }
+    return { label: 'Held for review', hard: false };
+}
+
+const recordsById = computed(() => Object.fromEntries(records.value.map((r) => [r.id, r])));
+
+// The raw records behind a proposal, so the reviewer can judge it without
+// scrolling back up to the paper trail.
+function sourceRecords(proposal) {
+    return proposal.record_ids.map((id) => recordsById.value[id]).filter(Boolean);
+}
+
+async function applyProposal(proposal) {
+    applyingUid.value = proposal.uid;
+    parseError.value = '';
+    try {
+        const { data } = await axios.post('/api/stock-movements', {
+            stock_class_id: proposal.stock_class_id,
+            type: proposal.type,
+            quantity: proposal.quantity,
+            note: proposal.note,
+        });
+        classes.value.find((c) => c.id === data.stock_class_id).movements.push(data);
+        keyedByMovement.value[data.id] = proposal.record_ids;
+        dismissProposal(proposal);
+    } catch (e) {
+        parseError.value = e.response?.data?.message ?? e.message;
+    } finally {
+        applyingUid.value = null;
+    }
+}
+
+// One at a time so a failure part-way through leaves the rest of the queue intact.
+async function acceptAll() {
+    // Snapshot the queue: applying a proposal removes it from readyProposals.
+    const queue = [...readyProposals.value];
+    acceptingAll.value = true;
+    acceptedCount.value = 0;
+    acceptTotal.value = queue.length;
+    for (const proposal of queue) {
+        await applyProposal(proposal);
+        if (parseError.value) break;
+        acceptedCount.value += 1;
+    }
+    acceptingAll.value = false;
+}
+
+function dismissProposal(proposal) {
+    proposals.value = proposals.value.filter((p) => p.uid !== proposal.uid);
+}
+
+// Pulling a row out of the accept-all batch parks it in the review list rather
+// than throwing it away - it still has to be dealt with.
+function sendToReview(proposal) {
+    proposal.sentToReview = true;
 }
 
 const parseJson = computed(() => (parseResult.value ? JSON.stringify(parseResult.value, null, 2) : ''));
