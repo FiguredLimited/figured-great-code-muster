@@ -83,7 +83,10 @@ return new class extends Migration
             $table->string('filename');
             $table->text('raw_text');
             $table->string('supplier')->nullable();
+            $table->string('invoice_number')->nullable();
+            $table->string('gst_number')->nullable();
             $table->date('invoice_date')->nullable();
+            $table->date('due_date')->nullable();
             $table->decimal('total', 12, 2)->nullable();
             $table->foreignId('category_id')->nullable()->constrained();
             $table->dateTime('entered_at')->nullable();
@@ -93,7 +96,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('invoice_id')->constrained()->cascadeOnDelete();
             $table->string('description');
+            $table->decimal('quantity', 10, 2)->nullable();
+            $table->decimal('unit_price', 12, 5)->nullable();
             $table->decimal('amount', 12, 2);
+            $table->timestamps();
         });
 
         // Page 5: Stock Reconciliation. Counts are for the stock year
