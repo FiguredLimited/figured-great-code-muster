@@ -5,10 +5,9 @@ import { money, shortDate } from '../format';
 
 const classes = ref([]);
 const records = ref([]);
-// The second paper trail: corroborating records pulled from the rest of the
-// practice's database. Loads with the page - no AI call needed to see it.
-const crossRecords = ref([]);
-const crossFilter = ref('All');
+const farms = ref([]);
+const selectedFarmId = ref(null);
+const farmMenuOpen = ref(false);
 const loading = ref(true);
 const saving = ref(false);
 
@@ -39,12 +38,16 @@ const justDone = ref(null);
 onMounted(load);
 
 async function load() {
-    const { data } = await axios.get('/api/stock');
-    classes.value = data.classes;
-    records.value = data.records;
-    crossRecords.value = data.cross_records ?? [];
+    const [{ data: stockData }, { data: farmData }] = await Promise.all([
+        axios.get('/api/stock'),
+        axios.get('/api/farms'),
+    ]);
+    classes.value = stockData.classes;
+    records.value = stockData.records;
+    farms.value = farmData;
+    selectedFarmId.value = farmData.find((farm) => farm.name === 'Kahikatea Downs')?.id ?? farmData[0]?.id ?? null;
     if (!movementForm.value.stock_class_id) {
-        movementForm.value.stock_class_id = data.classes[0]?.id ?? null;
+        movementForm.value.stock_class_id = stockData.classes[0]?.id ?? null;
     }
     loading.value = false;
 }
@@ -208,6 +211,19 @@ const hasCrossChecks = computed(() => depositsWithoutDocket.value.length > 0 || 
 const canSave = computed(
     () => movementForm.value.stock_class_id && movementForm.value.quantity > 0 && movementForm.value.type,
 );
+
+const selectedFarm = computed(() => farms.value.find((farm) => farm.id === selectedFarmId.value));
+
+function selectFarm(farmId) {
+    selectedFarmId.value = farmId;
+    farmMenuOpen.value = false;
+}
+
+function closeFarmMenu(event) {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+        farmMenuOpen.value = false;
+    }
+}
 
 async function addMovement() {
     saving.value = true;
@@ -417,7 +433,46 @@ const corroborationBadge = {
 
         <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
-                <h2 class="text-lg font-semibold">Stock reconciliation — Kahikatea Downs</h2>
+                <div class="flex flex-wrap items-center gap-2">
+                    <h2 class="text-lg font-semibold">Stock reconciliation —</h2>
+                    <div
+                        class="relative"
+                        @focusout="closeFarmMenu"
+                        @keydown.escape="farmMenuOpen = false"
+                    >
+                        <button
+                            type="button"
+                            aria-label="Farm"
+                            aria-haspopup="listbox"
+                            :aria-expanded="farmMenuOpen"
+                            class="flex min-w-56 items-center justify-between gap-3 rounded border border-fg-muted-grey bg-white px-3 py-1.5 text-left text-sm hover:border-fg-main-blue disabled:opacity-50"
+                            :disabled="loading || farms.length === 0"
+                            @click="farmMenuOpen = !farmMenuOpen"
+                        >
+                            <span>{{ selectedFarm?.name ?? 'Select a farm' }}</span>
+                            <span aria-hidden="true" class="text-xs text-fg-mid-grey">▾</span>
+                        </button>
+                        <div
+                            v-if="farmMenuOpen"
+                            role="listbox"
+                            aria-label="Farm options"
+                            class="absolute left-0 top-full z-30 mt-1 min-w-full overflow-hidden rounded border border-fg-muted-grey bg-white py-1 shadow-lg"
+                        >
+                            <button
+                                v-for="farm in farms"
+                                :key="farm.id"
+                                type="button"
+                                role="option"
+                                :aria-selected="farm.id === selectedFarmId"
+                                class="block w-full whitespace-nowrap px-3 py-2 text-left text-sm hover:bg-fg-pale-grey"
+                                :class="farm.id === selectedFarmId ? 'bg-fg-main-blue-9 font-medium text-fg-main-blue' : ''"
+                                @click="selectFarm(farm.id)"
+                            >
+                                {{ farm.name }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <p class="text-sm text-fg-mid-grey">
                     Key stock movements in from the raw records (right) until each tally matches the farmer's recorded
                     closing count. Stock year 1 Jul 2025 – 30 Jun 2026. The lamb docking tally is entered as an example.
