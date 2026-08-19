@@ -60,6 +60,36 @@ async function removeMovement(stockClass, movement) {
     stockClass.movements = stockClass.movements.filter((m) => m.id !== movement.id);
 }
 
+// Hand the whole paper trail to Claude and get back proposed movements, each
+// with a confidence score and a flag on anything that needs a human eye.
+const parsing = ref(false);
+const parseError = ref('');
+const parseResult = ref(null);
+const copied = ref(false);
+
+async function parseRecords() {
+    parsing.value = true;
+    parseError.value = '';
+    parseResult.value = null;
+    try {
+        const { data } = await axios.post('/api/stock/parse');
+        parseResult.value = data;
+    } catch (e) {
+        const body = e.response?.data;
+        parseError.value = body?.raw ? `${body.error}\n\n${body.raw}` : (body?.error ?? e.message);
+    } finally {
+        parsing.value = false;
+    }
+}
+
+const parseJson = computed(() => (parseResult.value ? JSON.stringify(parseResult.value, null, 2) : ''));
+
+async function copyJson() {
+    await navigator.clipboard.writeText(parseJson.value);
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 1500);
+}
+
 const sourceBadgeClass = {
     'Diary': 'bg-fg-warning-15 text-fg-warning-text',
     'Sale docket': 'bg-fg-light-blue-15 text-fg-light-blue',
@@ -215,24 +245,59 @@ const sourceBadgeClass = {
                 </div>
             </div>
 
-            <!-- Raw source records -->
-            <div class="rounded border border-fg-muted-grey bg-white">
-                <h3 class="border-b border-fg-pale-grey px-4 py-2 text-sm font-semibold">The paper trail</h3>
-                <ul>
-                    <li
-                        v-for="record in records"
-                        :key="record.id"
-                        class="border-b border-fg-pale-grey px-4 py-2 text-sm"
-                    >
-                        <div class="mb-0.5 flex items-center gap-2">
-                            <span class="text-xs text-fg-light-grey">{{ shortDate(record.recorded_on) }}</span>
-                            <span class="rounded-full px-2 py-0.5 text-xs" :class="sourceBadgeClass[record.source]">
-                                {{ record.source }}
+            <div class="space-y-4">
+                <!-- Raw source records -->
+                <div class="rounded border border-fg-muted-grey bg-white">
+                    <div class="flex items-center justify-between gap-2 border-b border-fg-pale-grey px-4 py-2">
+                        <h3 class="text-sm font-semibold">The paper trail</h3>
+                        <button
+                            class="rounded bg-fg-main-blue px-3 py-1 text-xs font-medium text-white hover:bg-fg-main-blue-hover disabled:opacity-50"
+                            :disabled="parsing"
+                            @click="parseRecords"
+                        >
+                            {{ parsing ? 'Parsing…' : 'Parse the paper trail' }}
+                        </button>
+                    </div>
+                    <ul>
+                        <li
+                            v-for="record in records"
+                            :key="record.id"
+                            class="border-b border-fg-pale-grey px-4 py-2 text-sm"
+                        >
+                            <div class="mb-0.5 flex items-center gap-2">
+                                <span class="text-xs text-fg-light-grey">{{ shortDate(record.recorded_on) }}</span>
+                                <span class="rounded-full px-2 py-0.5 text-xs" :class="sourceBadgeClass[record.source]">
+                                    {{ record.source }}
+                                </span>
+                            </div>
+                            <p class="leading-snug">{{ record.body }}</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Proposed movements, as JSON, ready to be keyed in -->
+                <p v-if="parseError" class="rounded bg-fg-danger-9 p-3 text-sm whitespace-pre-wrap text-fg-danger-dark">
+                    {{ parseError }}
+                </p>
+
+                <div v-if="parseResult" class="rounded border border-fg-muted-grey bg-white">
+                    <div class="flex items-center justify-between gap-2 border-b border-fg-pale-grey px-4 py-2">
+                        <h3 class="text-sm font-semibold">
+                            Proposed movements
+                            <span class="font-normal text-fg-light-grey">
+                                — {{ parseResult.proposals.length }} proposed,
+                                {{ parseResult.unresolved.length }} unresolved
                             </span>
-                        </div>
-                        <p class="leading-snug">{{ record.body }}</p>
-                    </li>
-                </ul>
+                        </h3>
+                        <button
+                            class="rounded border border-fg-muted-grey px-3 py-1 text-xs font-medium hover:bg-fg-super-pale-grey"
+                            @click="copyJson"
+                        >
+                            {{ copied ? 'Copied' : 'Copy JSON' }}
+                        </button>
+                    </div>
+                    <pre class="overflow-x-auto p-4 text-xs leading-relaxed">{{ parseJson }}</pre>
+                </div>
             </div>
         </div>
     </div>
