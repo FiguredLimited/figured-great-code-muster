@@ -1,24 +1,35 @@
 <script setup>
-import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
-import { shortDate } from '../format';
+import axios from "axios";
+import { computed, onMounted, ref } from "vue";
+import { shortDate } from "../format";
 
 const classes = ref([]);
 const records = ref([]);
 const loading = ref(true);
 const saving = ref(false);
+const openClasses = ref(new Set());
+
+function toggleClass(id) {
+    const next = new Set(openClasses.value);
+    if (next.has(id)) {
+        next.delete(id);
+    } else {
+        next.add(id);
+    }
+    openClasses.value = next;
+}
 
 const movementForm = ref({
     stock_class_id: null,
-    type: 'sale',
+    type: "sale",
     quantity: null,
-    note: '',
+    note: "",
 });
 
 onMounted(load);
 
 async function load() {
-    const { data } = await axios.get('/api/stock');
+    const { data } = await axios.get("/api/stock");
     classes.value = data.classes;
     records.value = data.records;
     if (!movementForm.value.stock_class_id) {
@@ -30,28 +41,43 @@ async function load() {
 // Tally per class: opening + births + purchases - deaths - sales.
 function tally(stockClass) {
     const sum = (type) =>
-        stockClass.movements.filter((m) => m.type === type).reduce((total, m) => total + m.quantity, 0);
-    const calculated = stockClass.opening_count + sum('birth') + sum('purchase') - sum('death') - sum('sale');
+        stockClass.movements
+            .filter((m) => m.type === type)
+            .reduce((total, m) => total + m.quantity, 0);
+    const calculated =
+        stockClass.opening_count +
+        sum("birth") +
+        sum("purchase") -
+        sum("death") -
+        sum("sale");
     return {
-        births: sum('birth'),
-        purchases: sum('purchase'),
-        deaths: sum('death'),
-        sales: sum('sale'),
+        births: sum("birth"),
+        purchases: sum("purchase"),
+        deaths: sum("death"),
+        sales: sum("sale"),
         calculated,
         difference: calculated - stockClass.closing_count,
     };
 }
 
 const canSave = computed(
-    () => movementForm.value.stock_class_id && movementForm.value.quantity > 0 && movementForm.value.type,
+    () =>
+        movementForm.value.stock_class_id &&
+        movementForm.value.quantity > 0 &&
+        movementForm.value.type,
 );
 
 async function addMovement() {
     saving.value = true;
-    const { data } = await axios.post('/api/stock-movements', movementForm.value);
-    classes.value.find((c) => c.id === data.stock_class_id).movements.push(data);
+    const { data } = await axios.post(
+        "/api/stock-movements",
+        movementForm.value,
+    );
+    classes.value
+        .find((c) => c.id === data.stock_class_id)
+        .movements.push(data);
     movementForm.value.quantity = null;
-    movementForm.value.note = '';
+    movementForm.value.note = "";
     saving.value = false;
 }
 
@@ -91,19 +117,23 @@ async function copyJson() {
 }
 
 const sourceBadgeClass = {
-    'Diary': 'bg-fg-warning-15 text-fg-warning-text',
-    'Sale docket': 'bg-fg-light-blue-15 text-fg-light-blue',
-    'Text message': 'bg-fg-brown-15 text-fg-brown',
+    Diary: "bg-fg-warning-15 text-fg-warning-text",
+    "Sale docket": "bg-fg-light-blue-15 text-fg-light-blue",
+    "Text message": "bg-fg-brown-15 text-fg-brown",
 };
 </script>
 
 <template>
     <div>
         <div class="mb-4">
-            <h2 class="text-lg font-semibold">Stock reconciliation — Kahikatea Downs</h2>
+            <h2 class="text-lg font-semibold">
+                Stock reconciliation — Kahikatea Downs
+            </h2>
             <p class="text-sm text-fg-mid-grey">
-                Key stock movements in from the raw records (right) until each tally matches the farmer's recorded
-                closing count. Stock year 1 Jul 2025 – 30 Jun 2026. The lamb docking tally is entered as an example.
+                Key stock movements in from the raw records (right) until each
+                tally matches the farmer's recorded closing count. Stock year 1
+                Jul 2025 – 30 Jun 2026. The lamb docking tally is entered as an
+                example.
             </p>
         </div>
 
@@ -117,8 +147,31 @@ const sourceBadgeClass = {
                     :key="stockClass.id"
                     class="rounded border border-fg-muted-grey bg-white p-4"
                 >
-                    <div class="mb-2 flex items-center justify-between">
-                        <h3 class="font-semibold">{{ stockClass.name }}</h3>
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between gap-2"
+                        :class="{ 'mb-2': openClasses.has(stockClass.id) }"
+                        @click="toggleClass(stockClass.id)"
+                    >
+                        <span class="flex items-center gap-2">
+                            <svg
+                                class="h-3.5 w-3.5 shrink-0 text-fg-light-grey transition-transform"
+                                :class="{
+                                    '-rotate-90': !openClasses.has(
+                                        stockClass.id,
+                                    ),
+                                }"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                            <h3 class="font-semibold">{{ stockClass.name }}</h3>
+                        </span>
                         <span
                             class="rounded-full px-2.5 py-0.5 text-xs font-medium"
                             :class="
@@ -129,88 +182,174 @@ const sourceBadgeClass = {
                         >
                             {{
                                 tally(stockClass).difference === 0
-                                    ? 'reconciled'
-                                    : `out by ${tally(stockClass).difference > 0 ? '+' : ''}${tally(stockClass).difference}`
+                                    ? "reconciled"
+                                    : `out by ${tally(stockClass).difference > 0 ? "+" : ""}${tally(stockClass).difference}`
                             }}
                         </span>
-                    </div>
+                    </button>
 
-                    <table class="w-full text-sm">
-                        <tbody>
-                            <tr class="border-t border-fg-pale-grey">
-                                <td class="py-1 text-fg-mid-grey">Opening (1 Jul 2025)</td>
-                                <td class="py-1 text-right font-mono">{{ stockClass.opening_count.toLocaleString() }}</td>
-                            </tr>
-                            <tr class="border-t border-fg-pale-grey">
-                                <td class="py-1 text-fg-mid-grey">+ Births</td>
-                                <td class="py-1 text-right font-mono">{{ tally(stockClass).births.toLocaleString() }}</td>
-                            </tr>
-                            <tr class="border-t border-fg-pale-grey">
-                                <td class="py-1 text-fg-mid-grey">+ Purchases</td>
-                                <td class="py-1 text-right font-mono">{{ tally(stockClass).purchases.toLocaleString() }}</td>
-                            </tr>
-                            <tr class="border-t border-fg-pale-grey">
-                                <td class="py-1 text-fg-mid-grey">− Deaths</td>
-                                <td class="py-1 text-right font-mono">{{ tally(stockClass).deaths.toLocaleString() }}</td>
-                            </tr>
-                            <tr class="border-t border-fg-pale-grey">
-                                <td class="py-1 text-fg-mid-grey">− Sales</td>
-                                <td class="py-1 text-right font-mono">{{ tally(stockClass).sales.toLocaleString() }}</td>
-                            </tr>
-                            <tr class="border-t border-fg-muted-grey font-medium">
-                                <td class="py-1">= Calculated closing</td>
-                                <td class="py-1 text-right font-mono">{{ tally(stockClass).calculated.toLocaleString() }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-1 text-fg-mid-grey">Recorded closing (tally book)</td>
-                                <td class="py-1 text-right font-mono">{{ stockClass.closing_count.toLocaleString() }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <details v-if="stockClass.movements.length" class="mt-2">
-                        <summary class="cursor-pointer text-xs text-fg-light-grey">
-                            {{ stockClass.movements.length }} movement(s) entered
-                        </summary>
-                        <ul class="mt-1 space-y-1">
-                            <li
-                                v-for="movement in stockClass.movements"
-                                :key="movement.id"
-                                class="flex items-center justify-between rounded bg-fg-super-pale-grey px-2 py-1 text-xs"
-                            >
-                                <span>
-                                    <span class="font-medium capitalize">{{ movement.type }}</span>
-                                    × {{ movement.quantity.toLocaleString() }}
-                                    <span v-if="movement.note" class="text-fg-light-grey">— {{ movement.note }}</span>
-                                </span>
-                                <button
-                                    class="ml-2 text-fg-light-grey hover:text-fg-danger"
-                                    title="Delete movement"
-                                    @click="removeMovement(stockClass, movement)"
+                    <div v-show="openClasses.has(stockClass.id)">
+                        <table class="w-full text-sm">
+                            <tbody>
+                                <tr class="border-t border-fg-pale-grey">
+                                    <td class="py-1 text-fg-mid-grey">
+                                        Opening (1 Jul 2025)
+                                    </td>
+                                    <td class="py-1 text-right font-mono">
+                                        {{
+                                            stockClass.opening_count.toLocaleString()
+                                        }}
+                                    </td>
+                                </tr>
+                                <tr class="border-t border-fg-pale-grey">
+                                    <td class="py-1 text-fg-mid-grey">
+                                        + Births
+                                    </td>
+                                    <td class="py-1 text-right font-mono">
+                                        {{
+                                            tally(
+                                                stockClass,
+                                            ).births.toLocaleString()
+                                        }}
+                                    </td>
+                                </tr>
+                                <tr class="border-t border-fg-pale-grey">
+                                    <td class="py-1 text-fg-mid-grey">
+                                        + Purchases
+                                    </td>
+                                    <td class="py-1 text-right font-mono">
+                                        {{
+                                            tally(
+                                                stockClass,
+                                            ).purchases.toLocaleString()
+                                        }}
+                                    </td>
+                                </tr>
+                                <tr class="border-t border-fg-pale-grey">
+                                    <td class="py-1 text-fg-mid-grey">
+                                        − Deaths
+                                    </td>
+                                    <td class="py-1 text-right font-mono">
+                                        {{
+                                            tally(
+                                                stockClass,
+                                            ).deaths.toLocaleString()
+                                        }}
+                                    </td>
+                                </tr>
+                                <tr class="border-t border-fg-pale-grey">
+                                    <td class="py-1 text-fg-mid-grey">
+                                        − Sales
+                                    </td>
+                                    <td class="py-1 text-right font-mono">
+                                        {{
+                                            tally(
+                                                stockClass,
+                                            ).sales.toLocaleString()
+                                        }}
+                                    </td>
+                                </tr>
+                                <tr
+                                    class="border-t border-fg-muted-grey font-medium"
                                 >
-                                    ✕
-                                </button>
-                            </li>
-                        </ul>
-                    </details>
+                                    <td class="py-1">= Calculated closing</td>
+                                    <td class="py-1 text-right font-mono">
+                                        {{
+                                            tally(
+                                                stockClass,
+                                            ).calculated.toLocaleString()
+                                        }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 text-fg-mid-grey">
+                                        Recorded closing (tally book)
+                                    </td>
+                                    <td class="py-1 text-right font-mono">
+                                        {{
+                                            stockClass.closing_count.toLocaleString()
+                                        }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <details
+                            v-if="stockClass.movements.length"
+                            class="mt-2"
+                        >
+                            <summary
+                                class="cursor-pointer text-xs text-fg-light-grey"
+                            >
+                                {{ stockClass.movements.length }} movement(s)
+                                entered
+                            </summary>
+                            <ul class="mt-1 space-y-1">
+                                <li
+                                    v-for="movement in stockClass.movements"
+                                    :key="movement.id"
+                                    class="flex items-center justify-between rounded bg-fg-super-pale-grey px-2 py-1 text-xs"
+                                >
+                                    <span>
+                                        <span class="font-medium capitalize">{{
+                                            movement.type
+                                        }}</span>
+                                        ×
+                                        {{ movement.quantity.toLocaleString() }}
+                                        <span
+                                            v-if="movement.note"
+                                            class="text-fg-light-grey"
+                                            >— {{ movement.note }}</span
+                                        >
+                                    </span>
+                                    <button
+                                        class="ml-2 text-fg-light-grey hover:text-fg-danger"
+                                        title="Delete movement"
+                                        @click="
+                                            removeMovement(stockClass, movement)
+                                        "
+                                    >
+                                        ✕
+                                    </button>
+                                </li>
+                            </ul>
+                        </details>
+                    </div>
                 </div>
 
                 <!-- New movement form -->
                 <div class="rounded border border-fg-muted-grey bg-white p-4">
-                    <h3 class="mb-2 text-sm font-semibold">Key in a movement</h3>
+                    <h3 class="mb-2 text-sm font-semibold">
+                        Manually key in a movement
+                    </h3>
                     <div class="flex flex-wrap items-end gap-2">
                         <div>
-                            <label class="block text-xs font-medium text-fg-mid-grey">Stock class</label>
+                            <label
+                                class="block text-xs font-medium text-fg-mid-grey"
+                                >Stock class</label
+                            >
                             <select
                                 v-model="movementForm.stock_class_id"
                                 class="rounded border border-fg-muted-grey px-2 py-1 text-sm"
                             >
-                                <option v-for="c in classes" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                <option
+                                    v-for="c in classes"
+                                    :key="c.id"
+                                    :value="c.id"
+                                >
+                                    {{ c.name }}
+                                </option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-fg-mid-grey">Type</label>
-                            <select v-model="movementForm.type" class="rounded border border-fg-muted-grey px-2 py-1 text-sm">
+                            <label
+                                class="block text-xs font-medium text-fg-mid-grey"
+                                >Type</label
+                            >
+                            <select
+                                v-model="movementForm.type"
+                                class="rounded border border-fg-muted-grey px-2 py-1 text-sm"
+                            >
                                 <option value="birth">Birth</option>
                                 <option value="purchase">Purchase</option>
                                 <option value="death">Death</option>
@@ -218,7 +357,10 @@ const sourceBadgeClass = {
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-fg-mid-grey">Quantity</label>
+                            <label
+                                class="block text-xs font-medium text-fg-mid-grey"
+                                >Quantity</label
+                            >
                             <input
                                 v-model.number="movementForm.quantity"
                                 type="number"
@@ -227,7 +369,10 @@ const sourceBadgeClass = {
                             />
                         </div>
                         <div class="grow">
-                            <label class="block text-xs font-medium text-fg-mid-grey">Note (source record)</label>
+                            <label
+                                class="block text-xs font-medium text-fg-mid-grey"
+                                >Note (source record)</label
+                            >
                             <input
                                 v-model="movementForm.note"
                                 placeholder="e.g. docket S-40102"
