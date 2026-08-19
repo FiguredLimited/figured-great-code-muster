@@ -83,9 +83,37 @@ async function addMovement() {
 
 async function removeMovement(stockClass, movement) {
     await axios.delete(`/api/stock-movements/${movement.id}`);
-    stockClass.movements = stockClass.movements.filter(
-        (m) => m.id !== movement.id,
-    );
+    stockClass.movements = stockClass.movements.filter((m) => m.id !== movement.id);
+}
+
+// Hand the whole paper trail to Claude and get back proposed movements, each
+// with a confidence score and a flag on anything that needs a human eye.
+const parsing = ref(false);
+const parseError = ref('');
+const parseResult = ref(null);
+const copied = ref(false);
+
+async function parseRecords() {
+    parsing.value = true;
+    parseError.value = '';
+    parseResult.value = null;
+    try {
+        const { data } = await axios.post('/api/stock/parse');
+        parseResult.value = data;
+    } catch (e) {
+        const body = e.response?.data;
+        parseError.value = body?.raw ? `${body.error}\n\n${body.raw}` : (body?.error ?? e.message);
+    } finally {
+        parsing.value = false;
+    }
+}
+
+const parseJson = computed(() => (parseResult.value ? JSON.stringify(parseResult.value, null, 2) : ''));
+
+async function copyJson() {
+    await navigator.clipboard.writeText(parseJson.value);
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 1500);
     delete keyedByMovement.value[movement.id];
 }
 
