@@ -103,16 +103,49 @@ If you ever want a clean slate: `php artisan migrate:fresh --seed`.
    (and how you learnt it), and your fix. Expect questions about your design
    decisions.
 
-## Where things live
+## Scope
 
-```
-routes/api.php                    all API routes (one controller per page)
-app/Http/Controllers/             thin controllers - modify freely
-app/Http/Controllers/AiController.php   the AI proxy
-resources/js/pages/               one Vue component per screen
-resources/js/pages/AiExample.vue  the worked example to copy
-data/                             the seeded fixture data (see data/README.md)
-```
+**Your deliverable:** one working AI-assisted improvement to one screen,
+demoed on the seeded data. Be ready to explain and defend every design
+decision you made.
+
+**In scope**
+- Modify anything in `resources/js/pages/` and `app/Http/Controllers/` — the
+  code is yours for the afternoon.
+- Add routes to `routes/api.php` if your feature needs a new endpoint.
+- All AI calls go through `POST /api/ai` (or a new backend endpoint that uses
+  the same `config('services.anthropic.key')` pattern).
+- Slice the problem small. One field on one screen, working end-to-end, is a
+  complete, demoable feature.
+- Building a capability the app doesn't have yet, if that's where you think
+  the real need is. New tab, new endpoint — go for it.
+
+**Out of scope**
+- Calling the Anthropic API directly from the browser, or moving the key
+  anywhere out of `.env`. Instant disqualification, and rule #1 below.
+- New composer/yarn packages — you won't need them, and installs eat your
+  build time.
+- Auth, deployment, tests, refactoring the app's structure. Nobody is
+  marking your architecture.
+- Editing the seeded data in `data/` to make your problem easier. The mess
+  *is* the exercise.
+
+## Run sheet
+
+| Time | What you're doing                                                                                                                                                                                                                                                                    |
+| --- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 4:00 – 4:10 | Kickoff. Scenario, teams, API keys handed out. Confirm `composer run dev` works and the AI Example tab responds before the clock really starts.                                                                                                                                      |
+| 4:10 – 5:00 | **Research.** Do the manual grunt work on every page, and dig into what you don't understand — the terms, the tax concepts, how the money actually moves. Use AI to learn; keep track of what you asked and how you checked the answers. Take notes on what hurts and what looks odd. |
+| 5:00 | **Checkpoint — pick your problem.** Two sentences per team: "We're automating X because Y" and "the thing we had to learn to do it properly is Z." Say it out loud to a Figgie.                                                                                                      |
+| 5:00 – 5:30 | Build the thin end: get one AI call working on real page data (copy `AiExample.vue`'s pattern).                                                                                                                                                                                      |
+| 5:30 | **Mid-point check.** If nothing works on screen yet, shrink scope now, not at 6:15.                                                                                                                                                                                                  |
+| 5:30 – 6:20 | Build the rest: wire it into the page and handle the awkward cases you found in the data.                                                                                                                                                                                            |
+| 6:00 | **Food arrives.** Grab a plate and keep building — demos still start at 6:30.                                                                                                                                                                                            |
+| 6:20 | **Scope freeze.** Stop adding. Fix, polish, and rehearse the demo once end-to-end.                                                                                                                                                                                                   |
+| 6:30 | **Pencils down.**                                                                                                                                                                                                                                                                    |
+| 6:30 – 7:00 | Demos and debrief — 4–5 minutes per team: the manual pain → what you had to learn (and how) → your fix.                                                                                                                                                                              |
+| 7:00 – 7:45 | Open — catch-ups, and overflow if demos run long.                                                                                                                                                                                                                              |
+| 7:45 – 8:00 | **Wrap.** Thanks, pack down.                                                                                                                                                                                                                                      |
 
 ## The `/api/ai` endpoint
 
@@ -139,60 +172,13 @@ Tips: put stable instructions in `system` and the task data in `prompt`; if
 you want structured output, ask for JSON and parse it (defensively). You can
 send data from the page (transactions, report lines…) inside the prompt.
 
-## Scope
+## Where things live
 
-**Your deliverable:** one working AI-assisted improvement to one screen,
-demoed on the seeded data. Be ready to explain and defend every design
-decision you made.
-
-**In scope**
-- Modify anything in `resources/js/pages/` and `app/Http/Controllers/` — the
-  code is yours for the afternoon.
-- Add routes to `routes/api.php` if your feature needs a new endpoint.
-- All AI calls go through `POST /api/ai` (or a new backend endpoint that uses
-  the same `config('services.anthropic.key')` pattern).
-- Slice the problem small. One field on one screen, working end-to-end, is a
-  complete, demoable feature.
-- Building a capability the app doesn't have yet, if that's where you think
-  the real need is. New tab, new endpoint — go for it.
-
-**Out of scope**
-- Calling the Anthropic API directly from the browser, or moving the key
-  anywhere out of `.env`. Instant disqualification, and rule #1 below.
-- Using the provided API key outside this app. It powers `/api/ai` and
-  nothing else — not Claude Code, Cursor, or any other tool. For AI-assisted
-  coding and research, use your own accounts.
-- New composer/yarn packages — you won't need them, and installs eat your
-  build time.
-- Auth, deployment, tests, refactoring the app's structure. Nobody is
-  marking your architecture.
-- Editing the seeded data in `data/` to make your problem easier. The mess
-  *is* the exercise.
-
-## What we're looking for
-
-Roughly in order:
-
-- **Problem choice** — real pain, a one-sentence "why", scoped to finishable.
-- **What you learnt** — explain something you didn't know at 4pm, and how you
-  checked it. We'll ask follow-ups.
-- **It works** — end-to-end on the seeded data. Narrow-and-working beats
-  broad-and-broken.
-- **The demo** — pain → learning → fix, honest about limitations.
-
-## Run sheet
-
-| Time | What you're doing                                                                                                                                                                                                                                                                    |
-| --- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 4:00 – 4:10 | Kickoff. Scenario, teams, API keys handed out. Confirm `composer run dev` works and the AI Example tab responds before the clock really starts.                                                                                                                                      |
-| 4:10 – 5:00 | **Research.** Do the manual grunt work on every page, and dig into what you don't understand — the terms, the tax concepts, how the money actually moves. Use AI to learn; keep track of what you asked and how you checked the answers. Take notes on what hurts and what looks odd. |
-| 5:00 | **Checkpoint — pick your problem.** Two sentences per team: "We're automating X because Y" and "the thing we had to learn to do it properly is Z." Say it out loud to a Figgie.                                                                                                      |
-| 5:00 – 5:30 | Build the thin end: get one AI call working on real page data (copy `AiExample.vue`'s pattern).                                                                                                                                                                                      |
-| 5:30 | **Mid-point check.** If nothing works on screen yet, shrink scope now, not at 6:15.                                                                                                                                                                                                  |
-| 5:30 – 6:20 | Build the rest: wire it into the page and handle the awkward cases you found in the data.                                                                                                                                                                                            |
-| 6:00 | **Food arrives.** Grab a plate and keep building — demos still start at 6:30.                                                                                                                                                                                            |
-| 6:20 | **Scope freeze.** Stop adding. Fix, polish, and rehearse the demo once end-to-end.                                                                                                                                                                                                   |
-| 6:30 | **Pencils down.**                                                                                                                                                                                                                                                                    |
-| 6:30 – 7:00 | Demos and debrief — 4–5 minutes per team: the manual pain → what you had to learn (and how) → your fix.                                                                                                                                                                              |
-| 7:00 – 7:45 | Open — catch-ups, and overflow if demos run long.                                                                                                                                                                                                                              |
-| 7:45 – 8:00 | **Wrap.** Thanks, pack down.                                                                                                                                                                                                                                      |
+```
+routes/api.php                    all API routes (one controller per page)
+app/Http/Controllers/             thin controllers - modify freely
+app/Http/Controllers/AiController.php   the AI proxy
+resources/js/pages/               one Vue component per screen
+resources/js/pages/AiExample.vue  the worked example to copy
+data/                             the seeded fixture data (see data/README.md)
+```

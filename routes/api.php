@@ -24,6 +24,9 @@ Route::put('/farms/{farm}/commentary', [ReportController::class, 'saveCommentary
 // Page 4: Invoice Entry
 Route::get('/invoices', [InvoiceController::class, 'index']);
 Route::put('/invoices/{invoice}', [InvoiceController::class, 'update']);
+Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy']);
+Route::post('/invoices/{invoice}/reset', [InvoiceController::class, 'reset']);
+Route::post('/invoices/upload', [InvoiceController::class, 'upload']);
 
 // Page 5: Stock Reconciliation
 Route::get('/stock', [StockController::class, 'index']);

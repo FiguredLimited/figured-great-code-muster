@@ -5,6 +5,7 @@ import BankCoding from './pages/BankCoding.vue';
 import Inbox from './pages/Inbox.vue';
 import MonthlyReport from './pages/MonthlyReport.vue';
 import InvoiceEntry from './pages/InvoiceEntry.vue';
+import InvoiceDashboard from './pages/InvoiceDashboard.vue';
 import StockReconciliation from './pages/StockReconciliation.vue';
 import AiExample from './pages/AiExample.vue';
 
@@ -15,6 +16,7 @@ const tabs = [
     { key: 'inbox', label: 'Inbox', component: Inbox },
     { key: 'report', label: 'Monthly report', component: MonthlyReport },
     { key: 'invoices', label: 'Invoice entry', component: InvoiceEntry },
+    { key: 'dashboard', label: 'Invoice dashboard', component: InvoiceDashboard },
     { key: 'stock', label: 'Stock reconciliation', component: StockReconciliation },
     { key: 'ai', label: 'AI example', component: AiExample },
 ];

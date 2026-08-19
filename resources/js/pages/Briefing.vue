@@ -16,13 +16,6 @@ const jargon = [
     ['Stock reconciliation', 'Proving opening animals + births + purchases − deaths − sales = closing animals. When it doesn\'t balance, something was missed (or counted twice).'],
 ];
 
-const lookingFor = [
-    ['Problem choice', 'Real pain, a one-sentence "why", scoped to finishable.'],
-    ['What you learnt', "Explain something you didn't know at 4pm, and how you checked it. We'll ask follow-ups."],
-    ['It works', 'End-to-end on the seeded data. Narrow-and-working beats broad-and-broken.'],
-    ['The demo', 'Pain → learning → fix, honest about limitations.'],
-];
-
 const runSheet = [
     ['4:00 – 4:10', 'Kickoff. Scenario, teams, API keys handed out.'],
     ['4:10 – 5:00', 'Research. Do the manual grunt work on every page, and dig into what you don\'t understand — the terms, the tax concepts, how the money actually moves. Use AI to learn; keep track of what you asked and how you checked the answers.'],
@@ -122,25 +115,12 @@ const runSheet = [
                     <h3 class="text-sm font-semibold text-fg-danger-dark">Out of scope</h3>
                     <ul class="mt-1 list-disc space-y-1 pl-4 text-sm text-fg-dark-grey">
                         <li>Calling Anthropic from the browser / moving the key out of <code>.env</code></li>
-                        <li>Using the provided key outside this app — it powers <code>/api/ai</code>, not Claude Code or any other tool. Use your own accounts for those</li>
                         <li>New composer or yarn packages</li>
                         <li>Auth, deployment, tests, restructuring the app</li>
                         <li>Editing the seeded data to make your problem easier — the mess <em>is</em> the exercise</li>
                     </ul>
                 </div>
             </div>
-        </section>
-
-        <!-- What we're looking for -->
-        <section class="rounded border border-fg-muted-grey bg-white p-5">
-            <h2 class="text-lg font-semibold">What we're looking for</h2>
-            <p class="mt-2 text-sm text-fg-mid-grey">Roughly in order:</p>
-            <dl class="mt-2 space-y-2 text-sm">
-                <div v-for="[criterion, detail] in lookingFor" :key="criterion">
-                    <dt class="font-medium">{{ criterion }}</dt>
-                    <dd class="text-fg-mid-grey">{{ detail }}</dd>
-                </div>
-            </dl>
         </section>
 
         <!-- Jargon -->
